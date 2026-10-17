@@ -105,3 +105,27 @@ teardown() {
   # Assert
   [ "${output}" = "WH-1000XM4 80%" ]
 }
+
+@test "bluetooth.sh - bt_parse_macos folds AirPods earbud and case levels into one device" {
+  # Arrange
+  local txt=$'Bluetooth:\n    Connected:\n        AirPods Pro:\n            Address: 00-11\n            Case Battery Level: 100%\n            Left Battery Level: 90%\n            Right Battery Level: 85%\n        Magic Mouse:\n            Battery Level: 50%\n'
+
+  # Act
+  run bt_parse_macos "${txt}"
+
+  # Assert
+  [ "${#lines[@]}" -eq 2 ]
+  [ "${lines[0]}" = "AirPods Pro 85%" ]
+  [ "${lines[1]}" = "Magic Mouse 50%" ]
+}
+
+@test "bluetooth.sh - bt_parse_macos falls back to the case level when only the case reports" {
+  # Arrange
+  local txt=$'Bluetooth:\n    Connected:\n        AirPods:\n            Case Battery Level: 70%\n'
+
+  # Act
+  run bt_parse_macos "${txt}"
+
+  # Assert
+  [ "${output}" = "AirPods 70%" ]
+}

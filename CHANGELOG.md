@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On Linux, only Bluetooth devices are listed. The upower dump is parsed one
   `Device:` block at a time and blocks that are not bluez devices, such as the
   laptop battery and the DisplayDevice, are skipped.
+- On macOS, AirPods that report `Left`, `Right` and `Case Battery Level` lines
+  are listed once under their name with the lower earbud level, instead of as
+  extra entries with no name. The case level is used when no earbud reports.
 
 ## [1.2.0] - 2026-06-29
 
