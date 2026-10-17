@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On macOS, AirPods that report `Left`, `Right` and `Case Battery Level` lines
   are listed once under their name with the lower earbud level, instead of as
   extra entries with no name. The case level is used when no earbud reports.
+- On macOS, a connected device whose name starts with a symbol or a
+  non-ASCII character is listed instead of skipped.
 
 ## [1.2.0] - 2026-06-29
 

@@ -129,3 +129,16 @@ teardown() {
   # Assert
   [ "${output}" = "AirPods 70%" ]
 }
+
+@test "bluetooth.sh - bt_parse_macos lists a device whose name starts with a symbol" {
+  # Arrange
+  local txt=$'Bluetooth:\n    Connected:\n        (Work) Headset:\n            Battery Level: 60%\n        _Mouse:\n            Address: 00-44\n'
+
+  # Act
+  run bt_parse_macos "${txt}"
+
+  # Assert
+  [ "${#lines[@]}" -eq 2 ]
+  [ "${lines[0]}" = "(Work) Headset 60%" ]
+  [ "${lines[1]}" = "_Mouse" ]
+}

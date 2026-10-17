@@ -20,7 +20,7 @@ source "${_BT_LIB_DIR}/../utils/has-command.sh"
 # The awk program is kept on a single line so coverage tools count it as one
 # executed statement rather than many uncovered lines.
 bt_parse_macos() {
-  printf '%s\n' "${1}" | awk 'function out(b){b=v;if(b=="")b=lr;if(b=="")b=cs;if(n!="")print n (b==""?"":" "b);n="";v="";lr="";cs=""} /Not Connected:/{out();c=0;next} /Connected:/{out();c=1;next} c&&/^[[:space:]]+[A-Za-z0-9].*:[[:space:]]*$/{out();n=$0;sub(/:[[:space:]]*$/,"",n);gsub(/^[[:space:]]+/,"",n);next} c&&/Battery Level:/{x=$0;sub(/.*Battery Level:[[:space:]]*/,"",x);if($0~/(Left|Right) Battery Level:/){if(lr==""||x+0<lr+0)lr=x}else if($0~/Case Battery Level:/)cs=x;else v=x} END{out()}'
+  printf '%s\n' "${1}" | awk 'function out(b){b=v;if(b=="")b=lr;if(b=="")b=cs;if(n!="")print n (b==""?"":" "b);n="";v="";lr="";cs=""} /Not Connected:/{out();c=0;next} /Connected:/{out();c=1;next} c&&/^[[:space:]]+[^[:space:]].*:[[:space:]]*$/{out();n=$0;sub(/:[[:space:]]*$/,"",n);gsub(/^[[:space:]]+/,"",n);next} c&&/Battery Level:/{x=$0;sub(/.*Battery Level:[[:space:]]*/,"",x);if($0~/(Left|Right) Battery Level:/){if(lr==""||x+0<lr+0)lr=x}else if($0~/Case Battery Level:/)cs=x;else v=x} END{out()}'
 }
 
 # bt_parse_linux TEXT -> "<model>[ <percentage>]" per device, one per line. A
