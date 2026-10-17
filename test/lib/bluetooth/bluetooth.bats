@@ -3,7 +3,7 @@
 load "${BATS_TEST_DIRNAME}/../../helpers.bash"
 
 MACOS_BT=$'Bluetooth:\n    Connected:\n        AirPods Pro:\n            Address: 00-11\n            Battery Level: 85%\n'
-LINUX_BT=$'Device: /org/freedesktop/UPower/devices/headset\n  model:               WH-1000XM4\n  percentage:          80%\n'
+LINUX_BT=$'Device: /org/freedesktop/UPower/devices/headset_dev_00_11\n  native-path:          /org/bluez/hci0/dev_00_11\n  model:               WH-1000XM4\n  percentage:          80%\n'
 
 setup() {
   setup_test_environment
@@ -39,9 +39,9 @@ teardown() {
 }
 
 @test "bluetooth.sh - bt_parse_linux enumerates every device" {
-  local txt=$'model: WH-1000XM4\npercentage: 80%\nmodel: MX Master\npercentage: 40%\n'
+  local txt=$'Device: /org/freedesktop/UPower/devices/headset_dev_00_11\n  native-path: /org/bluez/hci0/dev_00_11\n  model: WH-1000XM4\n  percentage: 80%\nDevice: /org/freedesktop/UPower/devices/mouse_dev_00_22\n  native-path: /org/bluez/hci0/dev_00_22\n  model: MX Master\n  percentage: 40%\n'
   run bt_parse_linux "${txt}"
-  [[ "${lines[0]}" == "WH-1000XM4 80%" ]]
+  [[ "${lines[0]}" == "WH-1000XM4 80%" ]] || false
   [[ "${lines[1]}" == "MX Master 40%" ]]
 }
 
@@ -84,13 +84,24 @@ teardown() {
 }
 
 @test "bluetooth.sh - bt_parse_linux lists a device with no percentage" {
-  local txt=$'Device: /org/freedesktop/UPower/devices/keyboard\n  model:               Keychron K2\n'
+  local txt=$'Device: /org/freedesktop/UPower/devices/keyboard_dev_00_33\n  native-path:          /org/bluez/hci0/dev_00_33\n  model:               Keychron K2\n'
   [[ "$(bt_parse_linux "${txt}")" == "Keychron K2" ]]
 }
 
 @test "bluetooth.sh - bt_parse_linux mixes battery and no-battery devices" {
-  local txt=$'model: WH-1000XM4\npercentage: 80%\nmodel: Keychron K2\n'
+  local txt=$'Device: /org/freedesktop/UPower/devices/headset_dev_00_11\n  native-path: /org/bluez/hci0/dev_00_11\n  model: WH-1000XM4\n  percentage: 80%\nDevice: /org/freedesktop/UPower/devices/keyboard_dev_00_33\n  native-path: /org/bluez/hci0/dev_00_33\n  model: Keychron K2\n'
   run bt_parse_linux "${txt}"
-  [[ "${lines[0]}" == "WH-1000XM4 80%" ]]
+  [[ "${lines[0]}" == "WH-1000XM4 80%" ]] || false
   [[ "${lines[1]}" == "Keychron K2" ]]
+}
+
+@test "bluetooth.sh - bt_parse_linux keeps only bluez devices" {
+  # Arrange
+  local txt=$'Device: /org/freedesktop/UPower/devices/battery_BAT0\n  native-path:          BAT0\n  model:               5B10W13930\n  percentage:          64%\nDevice: /org/freedesktop/UPower/devices/headset_dev_00_11\n  native-path:          /org/bluez/hci0/dev_00_11\n  model:               WH-1000XM4\n  percentage:          80%\nDevice: /org/freedesktop/UPower/devices/DisplayDevice\n  model:               Display\n  percentage:          64%\nDaemon:\n  daemon-version:  1.90.2\n'
+
+  # Act
+  run bt_parse_linux "${txt}"
+
+  # Assert
+  [ "${output}" = "WH-1000XM4 80%" ]
 }

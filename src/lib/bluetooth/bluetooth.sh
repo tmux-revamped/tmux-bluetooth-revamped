@@ -27,7 +27,7 @@ bt_parse_macos() {
 # device with a model but no percentage line is still listed, model only. Each
 # model line flushes the previous device, so model-only devices are not dropped.
 bt_parse_linux() {
-  printf '%s\n' "${1}" | awk '/model:/{if(m!="")print m (p==""?"":" "p);m=$0;sub(/.*model:[[:space:]]*/,"",m);p=""} /percentage:/{p=$0;sub(/.*percentage:[[:space:]]*/,"",p)} END{if(m!="")print m (p==""?"":" "p)}'
+  printf '%s\n' "${1}" | awk 'function out(){if(m!=""&&(np~/bluez/||d~/_dev_/))print m (p==""?"":" "p);m="";p="";np="";d=""} /^[^[:space:]]/{out();d=$0;next} /native-path:/{np=$0;sub(/.*native-path:[[:space:]]*/,"",np)} /model:/{m=$0;sub(/.*model:[[:space:]]*/,"",m)} /percentage:/{p=$0;sub(/.*percentage:[[:space:]]*/,"",p)} END{out()}'
 }
 
 # Host-probe seams.

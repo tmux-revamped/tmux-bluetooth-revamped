@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- On Linux, only Bluetooth devices are listed. The upower dump is parsed one
+  `Device:` block at a time and blocks that are not bluez devices, such as the
+  laptop battery and the DisplayDevice, are skipped.
+
 ## [1.2.0] - 2026-06-29
 
 ### Added
