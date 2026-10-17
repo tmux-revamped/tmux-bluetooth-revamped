@@ -8,7 +8,7 @@
 
 </div>
 
-**4** placeholders · **2** platforms · **86** tests · **95%+** coverage
+**4** placeholders · **2** platforms · **95%+** coverage
 
 The value is read from a tmux server user-option and returns instantly, while a detached worker queries Bluetooth in the background. No temp files are used. Every connected device is listed, joined by a configurable separator.
 
@@ -21,7 +21,7 @@ Built from [tmux-plugin-template](https://github.com/tmux-revamped/tmux-plugin-t
 </tr>
 <tr>
 <td><b>Every device</b><br>Lists all connected devices and their battery, joined by a configurable separator.</td>
-<td><b>Tested</b><br>86 tests with 95%+ coverage across both platforms.</td>
+<td><b>Tested</b><br>95%+ coverage across both platforms.</td>
 </tr>
 </table>
 
