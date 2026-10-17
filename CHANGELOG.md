@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   extra entries with no name. The case level is used when no earbud reports.
 - On macOS, a connected device whose name starts with a symbol or a
   non-ASCII character is listed instead of skipped.
+- A non-numeric `@bluetooth_revamped_interval` falls back to 30 seconds
+  instead of reaching shell arithmetic, where it could break the refresh or run
+  a command substitution.
 
 ## [1.2.0] - 2026-06-29
 

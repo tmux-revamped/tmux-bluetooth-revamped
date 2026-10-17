@@ -84,3 +84,25 @@ teardown() {
   run main min
   [[ -z "${output}" ]]
 }
+
+@test "bluetooth.sh dispatcher - bluetooth_max_age falls back to 30 for a non-numeric interval" {
+  # Arrange
+  set_tmux_option "@bluetooth_revamped_interval" 'x[$(touch "${TEST_TMPDIR}/ran")]'
+
+  # Act
+  run bluetooth_max_age
+
+  # Assert
+  [ "${output}" = "30" ]
+}
+
+@test "bluetooth.sh dispatcher - a non-numeric interval never reaches arithmetic" {
+  # Arrange
+  set_tmux_option "@bluetooth_revamped_interval" 'x[$(touch "${TEST_TMPDIR}/ran")]'
+
+  # Act
+  bluetooth_tick
+
+  # Assert
+  [ ! -e "${TEST_TMPDIR}/ran" ]
+}

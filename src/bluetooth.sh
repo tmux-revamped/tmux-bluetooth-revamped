@@ -22,8 +22,13 @@ source "${PLUGIN_DIR}/src/lib/bluetooth/bluetooth.sh"
 # shellcheck source=/dev/null
 source "${PLUGIN_DIR}/src/lib/bluetooth/render.sh"
 
+BLUETOOTH_DEFAULT_INTERVAL="30"
+
 bluetooth_max_age() {
-  get_tmux_option "@bluetooth_revamped_interval" "30"
+  local interval
+  interval=$(get_tmux_option "@bluetooth_revamped_interval" "${BLUETOOTH_DEFAULT_INTERVAL}")
+  [[ "${interval}" =~ ^[0-9]+$ ]] || interval="${BLUETOOTH_DEFAULT_INTERVAL}"
+  echo "${interval}"
 }
 
 bluetooth_refresh() {
