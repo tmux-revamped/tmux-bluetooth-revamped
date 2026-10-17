@@ -2,6 +2,11 @@
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BT_CMD="${PLUGIN_DIR}/src/bluetooth.sh"
+BT_CMD_ARG="$(printf '%q' "${BT_CMD}")"
+hash="#"
+BT_CMD_ARG="${BT_CMD_ARG//"${hash}"/${hash}${hash}}"
+
+shopt -u patsub_replacement 2>/dev/null || true
 
 placeholders=(
   "\#{bluetooth}"
@@ -11,10 +16,10 @@ placeholders=(
 )
 
 commands=(
-  "#(${BT_CMD} device)"
-  "#(${BT_CMD} icon)"
-  "#(${BT_CMD} count)"
-  "#(${BT_CMD} min)"
+  "#(${BT_CMD_ARG} device)"
+  "#(${BT_CMD_ARG} icon)"
+  "#(${BT_CMD_ARG} count)"
+  "#(${BT_CMD_ARG} min)"
 )
 
 interpolate() {

@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A non-numeric `@bluetooth_revamped_interval` falls back to 30 seconds
   instead of reaching shell arithmetic, where it could break the refresh or run
   a command substitution.
+- The status line jobs quote the plugin path, so the plugin works when installed
+  under a directory whose name contains a space or a single quote.
 
 ## [1.2.0] - 2026-06-29
 
