@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-#
-# render.sh: map the cached bluetooth value to text and an icon.
 
 [[ -n "${_BLUETOOTH_REVAMPED_RENDER_LOADED:-}" ]] && return 0
 _BLUETOOTH_REVAMPED_RENDER_LOADED=1
@@ -29,8 +27,6 @@ bluetooth_render_icon() {
   get_tmux_option "@bluetooth_revamped_icon" "BT"
 }
 
-# bluetooth_render_count VALUE -> the number of connected devices, "0" when none.
-# Counts non-empty lines in the cached device value, for narrow status bars.
 bluetooth_render_count() {
   [[ -z "${1}" ]] && { echo "0"; return 0; }
   local n=0 line
@@ -41,9 +37,6 @@ bluetooth_render_count() {
   echo "${n}"
 }
 
-# bluetooth_render_min VALUE -> the single device with the lowest battery, as
-# "<name> <pct%>". Empty when nothing is connected or no device reports a
-# battery, since "most at-risk" needs a battery reading to compare.
 bluetooth_render_min() {
   [[ -z "${1}" ]] && { echo ""; return 0; }
   local line best="" best_pct=101 pct

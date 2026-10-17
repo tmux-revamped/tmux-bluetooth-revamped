@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-#
-# bluetooth-revamped.tmux: TPM entry point.
-#
-# Replaces the #{bluetooth}, #{bluetooth_icon}, #{bluetooth_count} and
-# #{bluetooth_min} placeholders in status-left and status-right with calls to the
-# dispatcher, which reads cached values.
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BT_CMD="${PLUGIN_DIR}/src/bluetooth.sh"

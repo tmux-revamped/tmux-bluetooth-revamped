@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#
-# bluetooth.sh: command dispatcher for tmux-bluetooth-revamped.
-#
-# Usage: bluetooth.sh device | icon | count | min | refresh
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
