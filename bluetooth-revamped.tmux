@@ -26,7 +26,7 @@ interpolate() {
   local value="${1}"
   local i
   for (( i = 0; i < ${#placeholders[@]}; i++ )); do
-    value="${value//${placeholders[i]}/${commands[i]}}"
+    value=${value//${placeholders[i]}/"${commands[i]}"}
   done
   echo "${value}"
 }
