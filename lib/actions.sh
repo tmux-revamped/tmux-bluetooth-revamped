@@ -11,6 +11,10 @@ bluetooth_revamped_popup_key() {
   bluetooth_revamped_setting popup_key "${BLUETOOTH_REVAMPED_DEFAULT_POPUP_KEY}"
 }
 
+bluetooth_revamped_binding() {
+  tmux list-keys -T prefix 2>/dev/null | awk -v key="$1" '{ for (i = 1; i < NF; i++) { if ($i == "-T") { if ($(i + 2) == key) { print } break } } }'
+}
+
 bluetooth_revamped_tool() {
   if revamped_is_macos; then
     printf 'blueutil\n'

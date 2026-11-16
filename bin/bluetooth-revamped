@@ -227,7 +227,7 @@ bluetooth_revamped_doctor_actions() {
 bluetooth_revamped_doctor_key() {
   bluetooth_revamped_doctor_key_name=$(bluetooth_revamped_popup_key)
   [ "${bluetooth_revamped_doctor_key_name}" != none ] || return 0
-  bluetooth_revamped_doctor_key_bound=$(tmux list-keys -T prefix "${bluetooth_revamped_doctor_key_name}" 2>/dev/null) || bluetooth_revamped_doctor_key_bound="bluetooth-revamped"
+  bluetooth_revamped_doctor_key_bound=$(bluetooth_revamped_binding "${bluetooth_revamped_doctor_key_name}")
   case "${bluetooth_revamped_doctor_key_bound}" in
   "" | *bluetooth-revamped*) revamped_doctor_line "prefix ${bluetooth_revamped_doctor_key_name}" ok "opens the device popup" ;;
   *) revamped_doctor_line "prefix ${bluetooth_revamped_doctor_key_name}" warn "already bound, so the popup has no key; set @bluetooth_revamped_popup_key" ;;

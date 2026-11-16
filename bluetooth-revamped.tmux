@@ -38,13 +38,14 @@ bluetooth_revamped_bind() {
   tmux bind-key -T prefix "${bluetooth_revamped_key}" display-popup -E -w 80% -h 80% "'${bluetooth_revamped_quoted}' popup"
 }
 
-if [ "${bluetooth_revamped_key}" = none ]; then
-  :
-elif bluetooth_revamped_bound=$(tmux list-keys -T prefix "${bluetooth_revamped_key}" 2>/dev/null); then
+bluetooth_revamped_binding() {
+  tmux list-keys -T prefix 2>/dev/null | awk -v key="$1" '{ for (i = 1; i < NF; i++) { if ($i == "-T") { if ($(i + 2) == key) { print } break } } }'
+}
+
+if [ "${bluetooth_revamped_key}" != none ]; then
+  bluetooth_revamped_bound=$(bluetooth_revamped_binding "${bluetooth_revamped_key}")
   case "${bluetooth_revamped_bound}" in
-  *bluetooth-revamped*) bluetooth_revamped_bind ;;
+  "" | *bluetooth-revamped*) bluetooth_revamped_bind ;;
   *) : ;;
   esac
-else
-  bluetooth_revamped_bind
 fi

@@ -19,6 +19,12 @@ load_plugin() {
   tmux run-shell "'${quoted}/bluetooth-revamped.tmux'"
 }
 
+key_binding() {
+  local table
+  table=$(tmux list-keys -T prefix)
+  awk -v key="$1" '{ for (i = 1; i < NF; i++) { if ($i == "-T") { if ($(i + 2) == key) { print } break } } }' <<<"${table}"
+}
+
 placeholder_command() {
   sed -n -e 's/##/#/g' -e "s/.*#(\\(.* status $2\\)).*/\\1/p" <<<"$1"
 }
@@ -101,7 +107,7 @@ placeholder_command() {
   load_plugin "${ROOT}"
 
   # Assert
-  run tmux list-keys -T prefix "${key}"
+  run key_binding "${key}"
   [[ "${output}" == *"display-popup -E"*"bin/bluetooth-revamped' popup"* ]]
 }
 
@@ -113,8 +119,7 @@ placeholder_command() {
   load_plugin "${ROOT}"
 
   # Assert
-  run tmux list-keys -T prefix M-y
-  printf 'list-keys: %s\n' "${output}"
+  run key_binding M-y
   [[ "${output}" == *"bluetooth-revamped' popup"* ]]
 }
 
@@ -126,7 +131,7 @@ placeholder_command() {
   load_plugin "${ROOT}"
 
   # Assert
-  run tmux list-keys -T prefix M-h
+  run key_binding M-h
   [[ "${output}" != *"bluetooth-revamped"* ]]
 }
 
@@ -138,7 +143,7 @@ placeholder_command() {
   load_plugin "${ROOT}"
 
   # Assert
-  run tmux list-keys -T prefix M-h
+  run key_binding M-h
   [[ "${output}" == *"split-window"* ]]
   [[ "${output}" != *"bluetooth-revamped"* ]]
 }
@@ -151,6 +156,6 @@ placeholder_command() {
   load_plugin "${ROOT}"
 
   # Assert
-  run tmux list-keys -T prefix M-h
+  run key_binding M-h
   [[ "${output}" == *"bluetooth-revamped' popup"* ]]
 }
