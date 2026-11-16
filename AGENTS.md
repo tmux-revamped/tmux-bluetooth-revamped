@@ -48,4 +48,6 @@ Guidance for anyone, human or agent, changing tmux-bluetooth-revamped. What it i
 
 ## Gaps against FAMILY.md
 
-As of 2026-11-16, none.
+As of 2026-11-16:
+
+- No test presses its keys through a real client; the suites call the commands directly, so what tmux does to a binding's own command goes untested.
