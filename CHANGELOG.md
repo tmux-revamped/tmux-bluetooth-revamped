@@ -1,5 +1,18 @@
 # Changelog
 
+# [2.1.0](https://github.com/tmux-revamped/tmux-bluetooth-revamped/compare/v2.0.0...v2.1.0) (2026-11-16)
+
+
+### Bug Fixes
+
+* bind the popup key when tmux does not know it ([cb8f9f9](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/cb8f9f975189a6c501ca54fd9d940da5f95182f2))
+* find the popup key in the whole prefix table ([c8fb5bf](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/c8fb5bfdcefc63d456831847e5365dd23b4061a9))
+
+
+### Features
+
+* connect, disconnect and power from a popup ([c3394ce](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/c3394ce9e18e87d381113c1396e9fb9298a15beb))
+
 # [2.0.0](https://github.com/tmux-revamped/tmux-bluetooth-revamped/compare/v1.2.1...v2.0.0) (2026-11-16)
 
 
