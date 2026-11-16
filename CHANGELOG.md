@@ -1,5 +1,28 @@
 # Changelog
 
+# [2.0.0](https://github.com/tmux-revamped/tmux-bluetooth-revamped/compare/v1.2.1...v2.0.0) (2026-11-16)
+
+
+* feat!: rewrite the plugin in POSIX sh ([7ecd4f4](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/7ecd4f4a9cbf788ff2246c9af621a7d40d824e11))
+
+
+### Bug Fixes
+
+* escape JSON the same way on every awk ([3e9b9b9](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/3e9b9b9b54ab1547550eaecc2189785efab4f5de))
+
+
+### Features
+
+* add a shared desktop notifier ([2feab6d](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/2feab6dd3e5ff41045a8ac7ff127a18ec08ca03e))
+* **family:** accept bot updates in the audit ([7f3f913](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/7f3f913ae2afdb087dc513d68d1955bea2e2859c))
+
+
+### BREAKING CHANGES
+
+* the scripts moved from src/ to bin/ and lib/, so a
+status line that called src/bluetooth.sh directly instead of through a
+placeholder must call bin/bluetooth-revamped status device.
+
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
