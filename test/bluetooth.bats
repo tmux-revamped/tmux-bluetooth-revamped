@@ -260,10 +260,10 @@ stored() {
   local devices=""
 
   # Act
-  lib_run bluetooth "bluetooth_revamped_render_device '${devices}' | od -c"
+  lib_run bluetooth "bluetooth_revamped_render_device '${devices}'; printf end"
 
   # Assert
-  [[ "${lines[0]}" == "0000000  \\n" ]]
+  [[ "${output}" == $'\nend' ]]
 }
 
 @test "bluetooth - icon prints the icon while a device is connected" {
