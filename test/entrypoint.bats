@@ -114,6 +114,7 @@ placeholder_command() {
 
   # Assert
   run tmux list-keys -T prefix M-y
+  printf 'list-keys: %s\n' "${output}"
   [[ "${output}" == *"bluetooth-revamped' popup"* ]]
 }
 

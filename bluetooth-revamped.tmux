@@ -34,10 +34,17 @@ done
 
 bluetooth_revamped_key=$(tmux show-option -gqv @bluetooth_revamped_popup_key)
 [ -n "${bluetooth_revamped_key}" ] || bluetooth_revamped_key=M-h
-if [ "${bluetooth_revamped_key}" != none ]; then
-  bluetooth_revamped_bound=$(tmux list-keys -T prefix "${bluetooth_revamped_key}" 2>/dev/null) || bluetooth_revamped_bound=""
+bluetooth_revamped_bind() {
+  tmux bind-key -T prefix "${bluetooth_revamped_key}" display-popup -E -w 80% -h 80% "'${bluetooth_revamped_quoted}' popup"
+}
+
+if [ "${bluetooth_revamped_key}" = none ]; then
+  :
+elif bluetooth_revamped_bound=$(tmux list-keys -T prefix "${bluetooth_revamped_key}" 2>/dev/null); then
   case "${bluetooth_revamped_bound}" in
-  "" | *bluetooth-revamped*) tmux bind-key -T prefix "${bluetooth_revamped_key}" display-popup -E -w 80% -h 80% "'${bluetooth_revamped_quoted}' popup" ;;
+  *bluetooth-revamped*) bluetooth_revamped_bind ;;
   *) : ;;
   esac
+else
+  bluetooth_revamped_bind
 fi
