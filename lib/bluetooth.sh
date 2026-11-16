@@ -118,11 +118,21 @@ bluetooth_revamped_status() {
 
 bluetooth_revamped_json() {
   awk '
-    function quote(s) {
-      gsub(/\\/, "\\\\", s)
-      gsub(/"/, "\\\"", s)
-      gsub(/\t/, "\\t", s)
-      return "\"" s "\""
+    function quote(s,    out, i, c) {
+      out = ""
+      for (i = 1; i <= length(s); i++) {
+        c = substr(s, i, 1)
+        if (c == "\\") {
+          out = out "\\\\"
+        } else if (c == "\"") {
+          out = out "\\\""
+        } else if (c == "\t") {
+          out = out "\\t"
+        } else {
+          out = out c
+        }
+      }
+      return "\"" out "\""
     }
     NF == 0 { next }
     {
