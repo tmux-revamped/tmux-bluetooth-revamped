@@ -4,61 +4,49 @@
 
 <strong>接続中のすべてのBluetooth機器とその電池残量をtmuxのステータスバーに表示し、描画を止めません。</strong>
 
-[English](README.md) | 日本語 | [简体中文](README.zh-Hans.md) | [繁體中文（香港）](README.zh-HK.md)
+[English](README.md) &nbsp;|&nbsp; 日本語 &nbsp;|&nbsp; [简体中文](README.zh-Hans.md) &nbsp;|&nbsp; [繁體中文（香港）](README.zh-HK.md)
 
-[![family](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-bluetooth-revamped/family.yml?branch=main&style=flat-square&label=family)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/actions/workflows/family.yml)
-[![tests](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-bluetooth-revamped/tests.yml?branch=main&style=flat-square&label=tests)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/actions/workflows/tests.yml)
+[![ci](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-bluetooth-revamped/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/actions/workflows/ci.yml)
 [![release](https://img.shields.io/github/v/release/tmux-revamped/tmux-bluetooth-revamped?style=flat-square&label=release)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/releases/latest)
 [![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/tmux-revamped/tmux-bluetooth-revamped?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/tmux-revamped/tmux-bluetooth-revamped)
 [![license](https://img.shields.io/github/license/tmux-revamped/tmux-bluetooth-revamped?style=flat-square&label=license)](LICENSE)
 
 <p align="center">
-  <a href="#what-it-does">機能</a> |
-  <a href="#requirements">動作要件</a> |
-  <a href="#installation">インストール</a> |
-  <a href="#usage">使い方</a> |
-  <a href="#configuration">設定</a> |
-  <a href="#key-bindings">キーバインド</a> |
-  <a href="#how-it-works">仕組み</a>
+  <a href="#クイックスタート"><strong>クイックスタート</strong></a> &nbsp;|&nbsp;
+  <a href="#使い方">使い方</a> &nbsp;|&nbsp;
+  <a href="#仕組み">仕組み</a> &nbsp;|&nbsp;
+  <a href="#画面">画面</a>
 </p>
 
 </div>
 
-プレースホルダー**4**個。オプション**4**個。機器の問い合わせは既定で**30**秒に1回。CIはLinuxとmacOSの**10**通りのツールチェーンの組み合わせでテストを実行します。
+<p align="center">
+  <img src="screens/hero.gif" alt="ステータスラインに3台のBluetooth機器を表示するtmux。続いてbluetooth-revamped listとメニュー" width="800">
+</p>
+
+```console
+$ bluetooth-revamped list
+AirPods Pro 85%
+Magic Keyboard
+MX Master 3S 50%
+```
+
+ステータスラインはtmuxのオプションに保存した読み取り結果を表示し、機器の問い合わせはバックグラウンドで行います。そのためBluetoothの応答が遅くてもtmuxは止まりません。ディスクには何も書きません。
 
 ---
 
-<a id="what-it-does"></a>
+## クイックスタート
 
-## 機能
-
-`status-left`と`status-right`の`#{bluetooth*}`プレースホルダーを、接続中のBluetooth機器とその電池残量に置き換えます。例：`AirPods 85%, MX Master 50%`。ステータスラインはtmuxのオプションにキャッシュされた値を読み、機器の問い合わせはバックグラウンドで行います。ディスクには何も書き込みません。
-
-- 電池残量を報告しない機器は名前だけを表示します。
-- 左右とケースの残量を報告するAirPodsは1つにまとめ、イヤホンの低い方の残量を表示します。
-- LinuxではBluetooth機器だけを表示するため、ノートパソコンの電池は表示されません。
-- 機器が接続されていないとき、機器の一覧とアイコンは空になり、台数は`0`になります。
-
-<a id="requirements"></a>
-
-## 動作要件
+### 前提条件
 
 | ツール | バージョン | 用途 |
-|:-----|:--------|:-----------|
-| tmux | 3.2以降 | ファミリー共通の最低バージョン |
-| bash | 3.2以降 | macOSの`/bin/bash`を含むすべてのスクリプト |
-| `upower` | 任意 | Linuxのみ。機器の一覧 |
+|:-----|:--------|:---------|
+| tmux | 3.2以降 | ファミリーの全メンバーが対応する最低バージョン |
+| `system_profiler` | 標準搭載 | macOSの機器一覧。IntelとApple Silicon |
+| `upower` | 任意 | Linuxの機器一覧。x86_64とarm64 |
+| gum | 任意 | `bluetooth-revamped`のメニュー、表、色。なくてもすべてのコマンドがプレーンテキストで動きます |
 
-| プラットフォーム | 情報源 |
-|:---------|:-------|
-| macOS、IntelとApple Silicon | 標準搭載の`system_profiler SPBluetoothDataType` |
-| Linux、x86_64とarm64 | `upower --dump` |
-
-<a id="installation"></a>
-
-## インストール
-
-### TPMでインストール
+### インストール
 
 `~/.tmux.conf`にプラグインとプレースホルダーを追加し、`prefix + I`を押します。
 
@@ -67,79 +55,146 @@ set -g @plugin 'tmux-revamped/tmux-bluetooth-revamped'
 set -g status-right '#{bluetooth_icon} #{bluetooth}'
 ```
 
-### 手動インストール
+TPMを使わない場合は、リポジトリをクローンし、`status-left`と`status-right`を設定する行のあとでエントリーポイントを読み込みます。
 
 ```bash
 git clone https://github.com/tmux-revamped/tmux-bluetooth-revamped ~/.tmux/plugins/tmux-bluetooth-revamped
 ```
 
-次の行を`~/.tmux.conf`の`status-left`と`status-right`を設定する行より後に追加し、tmuxを再読み込みします。
-
 ```tmux
 run-shell ~/.tmux/plugins/tmux-bluetooth-revamped/bluetooth-revamped.tmux
 ```
 
-<a id="usage"></a>
+クローンで`make install`を実行すると、`bluetooth-revamped`が`~/.local/bin`に、manページとbash、zsh、fishの補完が`~/.local/share`の下に入ります。
+
+### 確認
+
+```bash
+~/.tmux/plugins/tmux-bluetooth-revamped/bin/bluetooth-revamped doctor
+```
+
+`doctor`はツールごとに1行を表示し、見つかった機器の読み取り元を示します。終了コードが1になるのは、必須のツールが見つからないときだけです。
 
 ## 使い方
 
-`status-left`か`status-right`にプレースホルダーを書きます。プラグインは読み込み時にそれを置き換えます。完全な例は[`examples/status-right.tmux.conf`](examples/status-right.tmux.conf)にあります。
-
 | プレースホルダー | 出力 |
 |:------------|:-------|
-| `#{bluetooth}` | 接続中のすべての機器とその電池残量。例：`AirPods 85%, MX Master 50%` |
-| `#{bluetooth_icon}` | 機器が接続されている間は`@bluetooth_revamped_icon`、それ以外は空 |
-| `#{bluetooth_count}` | 接続中の機器の台数。例：`2` |
-| `#{bluetooth_min}` | 電池残量が最も少ない機器。例：`MX Master 50%`。残量を報告する機器がなければ空 |
+| `#{bluetooth}` | 接続中のすべての機器と電池残量。`AirPods Pro 85%, MX Master 3S 50%`など |
+| `#{bluetooth_icon}` | 機器の接続中は`@bluetooth_revamped_icon`、それ以外は空 |
+| `#{bluetooth_count}` | 接続中の機器の数。`2`など |
+| `#{bluetooth_min}` | 電池残量がいちばん少ない機器。`MX Master 3S 50%`など。どの機器も残量を報告しないときは空 |
 
-<a id="configuration"></a>
-
-## 設定
-
-| オプション | 既定値 | 意味 |
-|:-------|:--------|:--------|
-| `@bluetooth_revamped_interval` | `30` | 機器の読み取りを新しいとみなす秒数。数値でない値は`30`になります |
-| `@bluetooth_revamped_format` | `%s` | `#{bluetooth}`のprintf書式 |
-| `@bluetooth_revamped_separator` | `, ` | `#{bluetooth}`の機器の間の文字列 |
+| tmuxオプション | 既定値 | 意味 |
+|:------------|:--------|:--------|
+| `@bluetooth_revamped_interval` | `30` | 読み取り結果が新しいとみなされる秒数。数値でない値は`30`になります |
+| `@bluetooth_revamped_format` | `%s` | `#{bluetooth}`のprintf形式 |
+| `@bluetooth_revamped_separator` | `, ` | `#{bluetooth}`で機器の間に入る文字列 |
 | `@bluetooth_revamped_icon` | `BT` | `#{bluetooth_icon}`の文字列 |
 
 ```tmux
-set -g @bluetooth_revamped_separator ' | '
+set -g @bluetooth_revamped_separator ' / '
 set -g @bluetooth_revamped_format '[%s]'
 ```
 
-### 内部状態
+| コマンド | 動作 |
+|:--------|:-------------|
+| `bluetooth-revamped status NAME` | プレースホルダーを1つ表示します。`device`、`icon`、`count`、`min`のいずれか。プレースホルダーはこれを呼びます |
+| `bluetooth-revamped list` | 機器をいま読み取り、1行に1台ずつ表示します。`--json`で1つのオブジェクトを出力します |
+| `bluetooth-revamped refresh` | ステータスラインのために機器をいま読み取ります |
+| `bluetooth-revamped doctor` | 依存するツールごとに1行。機器の読み取り元を含みます |
+| `bluetooth-revamped version` | バージョンと、tmuxのバージョン |
+| `bluetooth-revamped help` | ヘルプページ。`man bluetooth-revamped`も同じコマンドと設定を説明します |
+| `bluetooth-revamped` | 端末ではメニューを表示します。機器の表示、このマシンの確認、ヘルプを選べます |
 
-次のオプションはプラグインが自身で書き込みます。設定しないでください。
+tmuxオプションはどれも、`--separator ' / '`のようなコマンドのオプションとしても、`BLUETOOTH_REVAMPED_SEPARATOR`のような環境変数としても指定できます。コマンドラインが環境変数に優先し、環境変数がtmuxオプションに優先します。`--theme NAME`、`BLUETOOTH_REVAMPED_THEME`、`BLUETOOTH_REVAMPED_ACCENT`、`KODOUGU_THEME`、`KODOUGU_ACCENT`、`NO_COLOR`、tmuxオプション`@revamped_theme`は、tmux-revampedのすべてのツールと同じくコマンドの見た目を決めます。
 
-| オプション | 内容 |
-|:-------|:------|
-| `@bluetooth_revamped_device` | キャッシュされた機器の一覧。1行に1台 |
-| `@bluetooth_revamped_device_ts`、`@bluetooth_revamped_device_lock` | 一覧を読んだ時刻と、更新中かどうか |
-
-<a id="key-bindings"></a>
-
-## キーバインド
+```console
+$ bluetooth-revamped list --json
+{"devices":[{"name":"AirPods Pro","battery":85},{"name":"Magic Keyboard","battery":null},{"name":"MX Master 3S","battery":50}]}
+```
 
 このプラグインはキーを割り当てません。
 
-<a id="how-it-works"></a>
-
 ## 仕組み
 
-各プレースホルダーは[`src/bluetooth.sh`](src/bluetooth.sh)を呼ぶ`#()`になります。呼び出しはキャッシュされた機器の一覧をすぐに出力します。一覧が`@bluetooth_revamped_interval`秒より古ければ、バックグラウンドでの更新を1つ開始します。更新はロックで守られ、並行した呼び出しが2つ目を開始することはありません。次にステータスが描き直されると新しい一覧が表示されます。
+tmuxがプラグインを読み込むと、[`bluetooth-revamped.tmux`](bluetooth-revamped.tmux)が`status-left`と`status-right`の各プレースホルダーを`bluetooth-revamped status`を呼ぶ`#()`に置き換えます。この呼び出しは`@bluetooth_revamped_device`に保存した読み取り結果をすぐに表示します。結果が間隔より古いと、バックグラウンドで読み取りを1回始めます。`@bluetooth_revamped_device_lock`のロックがあるので、同時の呼び出しが2回目を始めることはなく、次の再描画で結果が表示されます。
 
-<a id="development"></a>
+macOSは`system_profiler SPBluetoothDataType`を読みます。AirPodsは左右のイヤホンとケースの残量を報告し、プラグインはイヤホンの低いほうを表示します。Linuxは`upower --dump`を読みます。Bluetooth機器だけを数えるので、ノートパソコンの電池は表示されません。
+
+<a id="画面"></a>
+
+## 画面
+
+<details>
+<summary><code>make screens</code>で本物のtmuxの中から録画したすべての画面。押したキーはステータスラインに表示されます</summary>
+<br>
+
+<table>
+<tr>
+<td width="50%" valign="top"><img src="screens/status.png" alt="bluetooth-revamped: ステータスラインのすべてのプレースホルダー"><br><sub>ステータスラインのすべてのプレースホルダー。<code>hero.tape</code>より</sub></td>
+<td width="50%" valign="top"><img src="screens/list.png" alt="bluetooth-revamped: list"><br><sub><code>list</code>。<code>hero.tape</code>より</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/json.png" alt="bluetooth-revamped: list --json"><br><sub><code>list --json</code>。<code>hero.tape</code>より</sub></td>
+<td width="50%" valign="top"><img src="screens/menu.png" alt="bluetooth-revamped: メニュー"><br><sub>メニュー。<code>hero.tape</code>より</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/menu-list.png" alt="bluetooth-revamped: メニューからの機器一覧"><br><sub>メニューからの機器一覧。<code>hero.tape</code>より</sub></td>
+<td width="50%" valign="top"><img src="screens/status-command.png" alt="bluetooth-revamped: status countとstatus min"><br><sub><code>status count</code>と<code>status min</code>。<code>stills.tape</code>より</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/options.png" alt="bluetooth-revamped: 区切り、形式、アイコンのオプション"><br><sub>区切り、形式、アイコンのオプション。<code>stills.tape</code>より</sub></td>
+<td width="50%" valign="top"><img src="screens/refresh.png" alt="bluetooth-revamped: refresh"><br><sub><code>refresh</code>。<code>stills.tape</code>より</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/doctor.png" alt="bluetooth-revamped: doctor"><br><sub><code>doctor</code>。<code>stills.tape</code>より</sub></td>
+<td width="50%" valign="top"><img src="screens/plain-menu.png" alt="bluetooth-revamped: gumなしのメニュー"><br><sub>gumなしのメニュー。<code>stills.tape</code>より</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/plain-doctor.png" alt="bluetooth-revamped: gumなしのdoctor。macOS付属のツールで実行"><br><sub>gumなしのdoctor。macOS付属のツールで実行。<code>stills.tape</code>より</sub></td>
+<td width="50%" valign="top"><img src="screens/version.png" alt="bluetooth-revamped: バージョン"><br><sub>バージョン。<code>stills.tape</code>より</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/error.png" alt="bluetooth-revamped: 誤ったプレースホルダー名"><br><sub>誤ったプレースホルダー名。<code>stills.tape</code>より</sub></td>
+<td width="50%" valign="top"><img src="screens/accent.png" alt="bluetooth-revamped: BLUETOOTH_REVAMPED_ACCENTによるアクセント"><br><sub><code>BLUETOOTH_REVAMPED_ACCENT</code>によるアクセント。<code>stills.tape</code>より</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/themes.png" alt="bluetooth-revamped: 6つのテーマのヘッダー"><br><sub>6つのテーマのヘッダー。<code>themes.tape</code>より</sub></td>
+<td width="50%" valign="top"><img src="screens/help.png" alt="bluetooth-revamped: ヘルプページ"><br><sub>ヘルプページ。<code>help.tape</code>より</sub></td>
+</tr>
+</table>
+
+</details>
+
+## 移植性
+
+プラグインはPOSIX `sh`です。CIは下の各行ですべてのテストを実行します。
+
+| シェル | 状態 |
+|:------|:-------|
+| `dash`、macOSの`/bin/sh` | 対応 |
+| `bash` 3.2と5.x、システムの`zsh`とHomebrewの`zsh` | 対応 |
+
+| システム | 状態 |
+|:-------|:-------|
+| macOS | Apple SiliconとIntelのTahoe。付属のツール、HomebrewのGNUツール、Homebrewのuutilsで確認 |
+| Linux | x86_64とarm64のUbuntu 26.04。GNU coreutils、uutils、BusyBoxで確認 |
+| FreeBSD、OpenBSD、NetBSD | CIの対象外。プレースホルダーは空になり、`doctor`が読み取り元がないことを示します |
 
 ## 開発
 
 | コマンド | 実行内容 |
 |:--------|:-------------|
-| `make test` | [`test/`](test)以下のbatsテスト |
-| `make lint` | すべてのシェルファイルへのshellcheck |
-| `make coverage` | Linuxでのkcovによる行カバレッジ。95%未満で失敗します |
+| `make fmt` | すべてのスクリプトにshfmt `-i 2`をかけます |
+| `make lint` | shfmt、ShellCheck、mandoc、yamllint、actionlintを、指摘ゼロで通します |
+| `make test` | システムの`sh`でbatsのテスト |
+| `make test-all` | インストール済みのすべてのシェルでテスト。macOSではbashとzshの両方のビルドを含みます |
+| `make test-linux` | Ubuntuのコンテナでテスト |
+| `make coverage` | このMacとUbuntuのコンテナでbashcovを実行し、合算して100パーセントで判定します |
+| `make screens` | 上の画面を、本物のプラグインからtmuxの中でVHSで録画します。macOSで実行します |
+| `make install` | コマンド、manページ、補完を`PREFIX`の下に置きます |
 
-<a id="license"></a>
+コミットはConventional Commitsの形式に従い、そのまま`main`に入ります。`main`で`ci`が成功すると、`release.yml`がsemantic-releaseを実行します。前回のタグ以降に`feat`か`fix`があればリリースを公開し、バージョン定数を更新し、変更内容を[`CHANGELOG.md`](CHANGELOG.md)に追加します。
 
 ## ライセンス
 

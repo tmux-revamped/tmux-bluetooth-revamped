@@ -1,0 +1,3 @@
+$ bluetooth-revamped
+bluetooth-revamped: no command given. run 'bluetooth-revamped help' for usage.
+exit 1

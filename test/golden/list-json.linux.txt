@@ -1,0 +1,3 @@
+$ bluetooth-revamped list --json
+{"devices":[{"name":"AirPods Pro","battery":85},{"name":"Magic Keyboard","battery":null},{"name":"MX Master","battery":50}]}
+exit 0

@@ -4,55 +4,49 @@
 
 <strong>Every connected Bluetooth device and its battery in your tmux status bar, without blocking the render.</strong>
 
-English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁體中文（香港）](README.zh-HK.md)
+English &nbsp;|&nbsp; [日本語](README.ja.md) &nbsp;|&nbsp; [简体中文](README.zh-Hans.md) &nbsp;|&nbsp; [繁體中文（香港）](README.zh-HK.md)
 
-[![family](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-bluetooth-revamped/family.yml?branch=main&style=flat-square&label=family)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/actions/workflows/family.yml)
-[![tests](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-bluetooth-revamped/tests.yml?branch=main&style=flat-square&label=tests)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/actions/workflows/tests.yml)
+[![ci](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-bluetooth-revamped/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/actions/workflows/ci.yml)
 [![release](https://img.shields.io/github/v/release/tmux-revamped/tmux-bluetooth-revamped?style=flat-square&label=release)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/releases/latest)
 [![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/tmux-revamped/tmux-bluetooth-revamped?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/tmux-revamped/tmux-bluetooth-revamped)
 [![license](https://img.shields.io/github/license/tmux-revamped/tmux-bluetooth-revamped?style=flat-square&label=license)](LICENSE)
 
 <p align="center">
-  <a href="#what-it-does">What it does</a> |
-  <a href="#requirements">Requirements</a> |
-  <a href="#installation">Installation</a> |
-  <a href="#usage">Usage</a> |
-  <a href="#configuration">Configuration</a> |
-  <a href="#key-bindings">Key bindings</a> |
-  <a href="#how-it-works">How it works</a>
+  <a href="#quick-start"><strong>Quick start</strong></a> &nbsp;|&nbsp;
+  <a href="#usage">Usage</a> &nbsp;|&nbsp;
+  <a href="#how-it-works">How it works</a> &nbsp;|&nbsp;
+  <a href="#screens">Screens</a>
 </p>
 
 </div>
 
-**4** placeholders. **4** options. One device query every **30** seconds by default. CI runs the suite on **10** Linux and macOS toolchain combinations.
+<p align="center">
+  <img src="screens/hero.gif" alt="tmux with three Bluetooth devices in the status line, then bluetooth-revamped list and its menu" width="800">
+</p>
+
+```console
+$ bluetooth-revamped list
+AirPods Pro 85%
+Magic Keyboard
+MX Master 3S 50%
+```
+
+The status line reads a reading stored in a tmux option, and the device query runs in the background, so a slow Bluetooth stack never stalls tmux. Nothing is written to disk.
 
 ---
 
-## What it does
+## Quick start
 
-The plugin replaces `#{bluetooth*}` placeholders in `status-left` and `status-right` with the connected Bluetooth devices and their battery levels, for example `AirPods 85%, MX Master 50%`. The status line reads a value cached in a tmux option, and the device query runs in the background. Nothing is written to disk.
+### Prerequisites
 
-- A device that reports no battery level is listed by name alone.
-- AirPods that report a left, right and case level are listed once, with the lower earbud level.
-- On Linux only Bluetooth devices are listed, so the laptop battery never appears.
-- With no device connected, the device list and icon render empty and the count renders `0`.
+| Tool | Version | Used for |
+|:-----|:--------|:---------|
+| tmux | 3.2 or later | the family floor every member supports |
+| `system_profiler` | built in | the device list on macOS, Intel and Apple Silicon |
+| `upower` | any | the device list on Linux, x86_64 and arm64 |
+| gum | optional | the menu, tables and colours of `bluetooth-revamped`; without it every command prints plain text |
 
-## Requirements
-
-| Tool | Version | Needed for |
-|:-----|:--------|:-----------|
-| tmux | 3.2 or later | the family floor |
-| bash | 3.2 or later | every script, including macOS `/bin/bash` |
-| `upower` | any | Linux only, the device list |
-
-| Platform | Source |
-|:---------|:-------|
-| macOS, Intel and Apple Silicon | `system_profiler SPBluetoothDataType`, built in |
-| Linux, x86_64 and arm64 | `upower --dump` |
-
-## Installation
-
-### With TPM
+### Install
 
 Add the plugin and a placeholder to `~/.tmux.conf`, then press `prefix + I`:
 
@@ -61,67 +55,146 @@ set -g @plugin 'tmux-revamped/tmux-bluetooth-revamped'
 set -g status-right '#{bluetooth_icon} #{bluetooth}'
 ```
 
-### Manual
+Without TPM, clone the repository and load the entry point after the lines that set `status-left` and `status-right`:
 
 ```bash
 git clone https://github.com/tmux-revamped/tmux-bluetooth-revamped ~/.tmux/plugins/tmux-bluetooth-revamped
 ```
 
-Then add this line to `~/.tmux.conf`, after the lines that set `status-left` and `status-right`, and reload tmux:
-
 ```tmux
 run-shell ~/.tmux/plugins/tmux-bluetooth-revamped/bluetooth-revamped.tmux
 ```
 
-## Usage
+`make install` in the clone also puts `bluetooth-revamped` in `~/.local/bin`, with its man page and its bash, zsh and fish completions under `~/.local/share`.
 
-Put placeholders in `status-left` or `status-right`. The plugin replaces them when it loads. [`examples/status-right.tmux.conf`](examples/status-right.tmux.conf) has a complete example.
+### Verify
+
+```bash
+~/.tmux/plugins/tmux-bluetooth-revamped/bin/bluetooth-revamped doctor
+```
+
+`doctor` prints one row per tool and names the device reader it found. It exits 1 only when a required tool is missing.
+
+## Usage
 
 | Placeholder | Output |
 |:------------|:-------|
-| `#{bluetooth}` | every connected device and its battery, for example `AirPods 85%, MX Master 50%` |
+| `#{bluetooth}` | Every connected device and its battery, such as `AirPods Pro 85%, MX Master 3S 50%` |
 | `#{bluetooth_icon}` | `@bluetooth_revamped_icon` while a device is connected, empty otherwise |
-| `#{bluetooth_count}` | the number of connected devices, for example `2` |
-| `#{bluetooth_min}` | the device with the lowest battery, for example `MX Master 50%`, empty when none reports a level |
+| `#{bluetooth_count}` | The number of connected devices, such as `2` |
+| `#{bluetooth_min}` | The device with the lowest battery, such as `MX Master 3S 50%`, empty when none reports a level |
 
-## Configuration
-
-| Option | Default | Meaning |
-|:-------|:--------|:--------|
-| `@bluetooth_revamped_interval` | `30` | seconds a device reading stays fresh; a value that is not a number falls back to `30` |
+| tmux option | Default | Meaning |
+|:------------|:--------|:--------|
+| `@bluetooth_revamped_interval` | `30` | Seconds a reading stays fresh; a value that is not a number means `30` |
 | `@bluetooth_revamped_format` | `%s` | printf format for `#{bluetooth}` |
-| `@bluetooth_revamped_separator` | `, ` | text between devices in `#{bluetooth}` |
-| `@bluetooth_revamped_icon` | `BT` | text for `#{bluetooth_icon}` |
+| `@bluetooth_revamped_separator` | `, ` | Text between devices in `#{bluetooth}` |
+| `@bluetooth_revamped_icon` | `BT` | Text for `#{bluetooth_icon}` |
 
 ```tmux
-set -g @bluetooth_revamped_separator ' | '
+set -g @bluetooth_revamped_separator ' / '
 set -g @bluetooth_revamped_format '[%s]'
 ```
 
-### Internal state
+| Command | What it does |
+|:--------|:-------------|
+| `bluetooth-revamped status NAME` | Prints one placeholder: `device`, `icon`, `count` or `min`. The placeholders call this |
+| `bluetooth-revamped list` | Reads the devices now and prints one per line; `--json` prints one object |
+| `bluetooth-revamped refresh` | Reads the devices now for the status line |
+| `bluetooth-revamped doctor` | One row per dependency, the device reader included |
+| `bluetooth-revamped version` | The version, then the tmux version |
+| `bluetooth-revamped help` | The help page; `man bluetooth-revamped` documents the same commands and settings |
+| `bluetooth-revamped` | On a terminal, a menu: show the devices, check this machine, or read the help |
 
-The plugin writes these options itself. Do not set them.
+Every tmux option is also an option of the command, such as `--separator ' / '`, and an environment variable, such as `BLUETOOTH_REVAMPED_SEPARATOR`. The command line wins over the environment, and the environment over the tmux option. `--theme NAME`, `BLUETOOTH_REVAMPED_THEME`, `BLUETOOTH_REVAMPED_ACCENT`, `KODOUGU_THEME`, `KODOUGU_ACCENT`, `NO_COLOR` and the tmux option `@revamped_theme` set the look of the command, as in every tmux-revamped tool.
 
-| Option | Holds |
-|:-------|:------|
-| `@bluetooth_revamped_device` | the cached device list, one device per line |
-| `@bluetooth_revamped_device_ts`, `@bluetooth_revamped_device_lock` | when the list was read, and whether a refresh is running |
-
-## Key bindings
+```console
+$ bluetooth-revamped list --json
+{"devices":[{"name":"AirPods Pro","battery":85},{"name":"Magic Keyboard","battery":null},{"name":"MX Master 3S","battery":50}]}
+```
 
 The plugin binds no key.
 
 ## How it works
 
-Each placeholder becomes a `#()` call to [`src/bluetooth.sh`](src/bluetooth.sh). The call prints the cached device list at once. When the list is older than `@bluetooth_revamped_interval` seconds, the call also starts one background refresh, guarded by a lock so parallel calls do not start a second one. The next status redraw shows the new list.
+When tmux loads the plugin, [`bluetooth-revamped.tmux`](bluetooth-revamped.tmux) turns each placeholder in `status-left` and `status-right` into a `#()` call to `bluetooth-revamped status`. The call prints the reading stored in `@bluetooth_revamped_device` at once. When that reading is older than the interval, the call also starts one background reading, guarded by a lock in `@bluetooth_revamped_device_lock` so parallel calls start no second one, and the next redraw shows the result.
+
+macOS reads `system_profiler SPBluetoothDataType`. AirPods report each earbud and the case, and the plugin shows the lower earbud level. Linux reads `upower --dump`, which lists only Bluetooth devices, so the laptop battery never appears.
+
+<a id="screens"></a>
+
+## Screens
+
+<details>
+<summary>Every screen, recorded inside a real tmux with <code>make screens</code>, with each key on the status line</summary>
+<br>
+
+<table>
+<tr>
+<td width="50%" valign="top"><img src="screens/status.png" alt="bluetooth-revamped: Every placeholder in the status line"><br><sub>Every placeholder in the status line, from <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/list.png" alt="bluetooth-revamped: list"><br><sub><code>list</code>, from <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/json.png" alt="bluetooth-revamped: list --json"><br><sub><code>list --json</code>, from <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/menu.png" alt="bluetooth-revamped: The menu"><br><sub>The menu, from <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/menu-list.png" alt="bluetooth-revamped: The devices from the menu"><br><sub>The devices from the menu, from <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/status-command.png" alt="bluetooth-revamped: status count and status min"><br><sub><code>status count</code> and <code>status min</code>, from <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/options.png" alt="bluetooth-revamped: The separator, format and icon options"><br><sub>The separator, format and icon options, from <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/refresh.png" alt="bluetooth-revamped: refresh"><br><sub><code>refresh</code>, from <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/doctor.png" alt="bluetooth-revamped: doctor"><br><sub><code>doctor</code>, from <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/plain-menu.png" alt="bluetooth-revamped: The menu without gum"><br><sub>The menu without gum, from <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/plain-doctor.png" alt="bluetooth-revamped: doctor without gum, on the tools macOS ships"><br><sub>doctor without gum, on the tools macOS ships, from <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/version.png" alt="bluetooth-revamped: The version"><br><sub>The version, from <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/error.png" alt="bluetooth-revamped: A bad placeholder name"><br><sub>A bad placeholder name, from <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/accent.png" alt="bluetooth-revamped: An accent from BLUETOOTH_REVAMPED_ACCENT"><br><sub>An accent from <code>BLUETOOTH_REVAMPED_ACCENT</code>, from <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/themes.png" alt="bluetooth-revamped: The header in six themes"><br><sub>The header in six themes, from <code>themes.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/help.png" alt="bluetooth-revamped: The help page"><br><sub>The help page, from <code>help.tape</code></sub></td>
+</tr>
+</table>
+
+</details>
+
+## Portability
+
+The plugin is POSIX `sh`. CI runs every suite on each row below.
+
+| Shell | Status |
+|:------|:-------|
+| `dash`, `/bin/sh` on macOS | Supported |
+| `bash` 3.2 and 5.x, the system's `zsh` and Homebrew's | Supported |
+
+| System | Status |
+|:-------|:-------|
+| macOS | Tahoe on Apple Silicon and Intel, with the tools it ships, Homebrew's GNU tools and Homebrew's uutils |
+| Linux | Ubuntu 26.04 on x86_64 and arm64, with GNU coreutils, uutils and BusyBox |
+| FreeBSD, OpenBSD, NetBSD | Not covered by CI; the placeholders stay empty and `doctor` says no reader exists |
 
 ## Development
 
 | Command | What it runs |
 |:--------|:-------------|
-| `make test` | the bats suite under [`test/`](test) |
-| `make lint` | shellcheck on every shell file |
-| `make coverage` | kcov line coverage on Linux, failing below 95% |
+| `make fmt` | shfmt `-i 2` on every script |
+| `make lint` | shfmt, ShellCheck, mandoc, yamllint and actionlint, at zero findings |
+| `make test` | The bats suites under the system `sh` |
+| `make test-all` | The suites under every installed shell, both builds of bash and zsh on macOS |
+| `make test-linux` | The suites in an Ubuntu container |
+| `make coverage` | bashcov on this Mac and in the Ubuntu container, merged and gated at 100 percent |
+| `make screens` | The screens above, recorded from the real plugin inside tmux with VHS, on macOS |
+| `make install` | The command, its man page and completions under `PREFIX` |
+
+Commits follow the conventional commit format and go straight to `main`. After a green `ci` run on `main`, `release.yml` runs semantic-release: every `feat` or `fix` since the last tag publishes a release, stamps the version constant and adds the notes to [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License
 

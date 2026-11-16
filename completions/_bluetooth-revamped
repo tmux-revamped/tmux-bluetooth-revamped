@@ -1,0 +1,30 @@
+#compdef bluetooth-revamped
+
+_bluetooth_revamped() {
+  local -a commands
+  commands=(
+    'status:print one placeholder'
+    'list:read the devices now, one per line'
+    'refresh:read the devices now for the status line'
+    'doctor:check this machine'
+    'version:print the version'
+    'help:print the help page'
+  )
+
+  _arguments \
+    '--interval[how long a reading stays fresh]:seconds:' \
+    '--format[printf format for the device list]:format:' \
+    '--separator[text between devices]:text:' \
+    '--icon[text for the icon placeholder]:text:' \
+    '--json[list prints one JSON object]' \
+    '--theme[colours of the terminal interface]:theme:(kodougu catppuccin-mocha catppuccin-latte dracula nord gruvbox tokyo-night mono)' \
+    '1:command:->command' \
+    '2:placeholder:->placeholder'
+
+  case "${state}" in
+  command) _describe 'command' commands ;;
+  placeholder) [[ "${words[2]}" == status ]] && _values 'placeholder' device icon count min ;;
+  esac
+}
+
+_bluetooth_revamped "$@"

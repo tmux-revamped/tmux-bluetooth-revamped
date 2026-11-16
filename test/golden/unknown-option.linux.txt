@@ -1,0 +1,3 @@
+$ bluetooth-revamped --frobnicate
+bluetooth-revamped: unknown option '--frobnicate'. run 'bluetooth-revamped help' for usage.
+exit 1

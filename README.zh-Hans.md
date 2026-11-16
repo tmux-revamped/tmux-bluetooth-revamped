@@ -4,142 +4,197 @@
 
 <strong>在 tmux 状态栏显示每个已连接的蓝牙设备及其电量，不阻塞渲染。</strong>
 
-[English](README.md) | [日本語](README.ja.md) | 简体中文 | [繁體中文（香港）](README.zh-HK.md)
+[English](README.md) &nbsp;|&nbsp; [日本語](README.ja.md) &nbsp;|&nbsp; 简体中文 &nbsp;|&nbsp; [繁體中文（香港）](README.zh-HK.md)
 
-[![family](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-bluetooth-revamped/family.yml?branch=main&style=flat-square&label=family)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/actions/workflows/family.yml)
-[![tests](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-bluetooth-revamped/tests.yml?branch=main&style=flat-square&label=tests)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/actions/workflows/tests.yml)
+[![ci](https://img.shields.io/github/actions/workflow/status/tmux-revamped/tmux-bluetooth-revamped/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/actions/workflows/ci.yml)
 [![release](https://img.shields.io/github/v/release/tmux-revamped/tmux-bluetooth-revamped?style=flat-square&label=release)](https://github.com/tmux-revamped/tmux-bluetooth-revamped/releases/latest)
 [![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/tmux-revamped/tmux-bluetooth-revamped?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/tmux-revamped/tmux-bluetooth-revamped)
 [![license](https://img.shields.io/github/license/tmux-revamped/tmux-bluetooth-revamped?style=flat-square&label=license)](LICENSE)
 
 <p align="center">
-  <a href="#what-it-does">功能</a> |
-  <a href="#requirements">环境要求</a> |
-  <a href="#installation">安装</a> |
-  <a href="#usage">用法</a> |
-  <a href="#configuration">配置</a> |
-  <a href="#key-bindings">快捷键</a> |
-  <a href="#how-it-works">工作原理</a>
+  <a href="#快速开始"><strong>快速开始</strong></a> &nbsp;|&nbsp;
+  <a href="#用法">用法</a> &nbsp;|&nbsp;
+  <a href="#工作原理">工作原理</a> &nbsp;|&nbsp;
+  <a href="#界面">界面</a>
 </p>
 
 </div>
 
-**4** 个占位符。**4** 个选项。默认每 **30** 秒查询一次设备。CI 在 **10** 种 Linux 和 macOS 工具链组合上运行测试。
+<p align="center">
+  <img src="screens/hero.gif" alt="tmux 状态栏显示三个蓝牙设备，然后是 bluetooth-revamped list 和它的菜单" width="800">
+</p>
+
+```console
+$ bluetooth-revamped list
+AirPods Pro 85%
+Magic Keyboard
+MX Master 3S 50%
+```
+
+状态栏读取保存在 tmux 选项中的读数，设备查询在后台进行，所以蓝牙响应再慢也不会卡住 tmux。不向磁盘写任何东西。
 
 ---
 
-<a id="what-it-does"></a>
+## 快速开始
 
-## 功能
-
-插件把 `status-left` 和 `status-right` 中的 `#{bluetooth*}` 占位符替换为已连接的蓝牙设备及其电量，例如 `AirPods 85%, MX Master 50%`。状态栏读取缓存在 tmux 选项中的值，设备查询在后台进行。不向磁盘写入任何内容。
-
-- 不报告电量的设备只显示名称。
-- 报告左耳、右耳和充电盒电量的 AirPods 只列出一次，显示两只耳机中较低的电量。
-- 在 Linux 上只列出蓝牙设备，因此不会出现笔记本电池。
-- 没有设备连接时，设备列表和图标显示为空，数量显示为 `0`。
-
-<a id="requirements"></a>
-
-## 环境要求
+### 前提条件
 
 | 工具 | 版本 | 用途 |
-|:-----|:--------|:-----------|
-| tmux | 3.2 或更高 | 插件家族的最低版本 |
-| bash | 3.2 或更高 | 所有脚本，包括 macOS 的 `/bin/bash` |
-| `upower` | 任意 | 仅 Linux，设备列表 |
+|:-----|:--------|:---------|
+| tmux | 3.2 或更高 | 家族所有成员都支持的最低版本 |
+| `system_profiler` | 系统自带 | macOS 上的设备列表，Intel 和 Apple Silicon |
+| `upower` | 任意 | Linux 上的设备列表，x86_64 和 arm64 |
+| gum | 可选 | `bluetooth-revamped` 的菜单、表格和颜色；没有它时每个命令都输出纯文本 |
 
-| 平台 | 数据源 |
-|:---------|:-------|
-| macOS，Intel 和 Apple Silicon | 系统自带的 `system_profiler SPBluetoothDataType` |
-| Linux，x86_64 和 arm64 | `upower --dump` |
+### 安装
 
-<a id="installation"></a>
-
-## 安装
-
-### 使用 TPM
-
-把插件和占位符加入 `~/.tmux.conf`，然后按 `prefix + I`：
+在 `~/.tmux.conf` 中加入插件和一个占位符，然后按 `prefix + I`：
 
 ```tmux
 set -g @plugin 'tmux-revamped/tmux-bluetooth-revamped'
 set -g status-right '#{bluetooth_icon} #{bluetooth}'
 ```
 
-### 手动安装
+不用 TPM 时，克隆仓库，并在设置 `status-left` 和 `status-right` 的行之后加载入口文件：
 
 ```bash
 git clone https://github.com/tmux-revamped/tmux-bluetooth-revamped ~/.tmux/plugins/tmux-bluetooth-revamped
 ```
 
-然后把这一行加到 `~/.tmux.conf` 中设置 `status-left` 和 `status-right` 的行之后，并重新加载 tmux：
-
 ```tmux
 run-shell ~/.tmux/plugins/tmux-bluetooth-revamped/bluetooth-revamped.tmux
 ```
 
-<a id="usage"></a>
+在克隆的目录中运行 `make install`，还会把 `bluetooth-revamped` 放进 `~/.local/bin`，把它的 man 手册以及 bash、zsh、fish 补全放在 `~/.local/share` 下。
+
+### 验证
+
+```bash
+~/.tmux/plugins/tmux-bluetooth-revamped/bin/bluetooth-revamped doctor
+```
+
+`doctor` 为每个工具打印一行，并给出找到的设备读取来源。只有缺少必需的工具时，它才以 1 退出。
 
 ## 用法
 
-在 `status-left` 或 `status-right` 中写入占位符，插件加载时会替换它们。完整示例见 [`examples/status-right.tmux.conf`](examples/status-right.tmux.conf)。
-
 | 占位符 | 输出 |
 |:------------|:-------|
-| `#{bluetooth}` | 每个已连接的设备及其电量，例如 `AirPods 85%, MX Master 50%` |
+| `#{bluetooth}` | 每个已连接的设备及其电量，例如 `AirPods Pro 85%, MX Master 3S 50%` |
 | `#{bluetooth_icon}` | 有设备连接时为 `@bluetooth_revamped_icon`，否则为空 |
 | `#{bluetooth_count}` | 已连接设备的数量，例如 `2` |
-| `#{bluetooth_min}` | 电量最低的设备，例如 `MX Master 50%`；没有设备报告电量时为空 |
+| `#{bluetooth_min}` | 电量最低的设备，例如 `MX Master 3S 50%`；没有设备报告电量时为空 |
 
-<a id="configuration"></a>
-
-## 配置
-
-| 选项 | 默认值 | 含义 |
-|:-------|:--------|:--------|
-| `@bluetooth_revamped_interval` | `30` | 设备读数保持有效的秒数；不是数字的值会回退为 `30` |
+| tmux 选项 | 默认值 | 含义 |
+|:------------|:--------|:--------|
+| `@bluetooth_revamped_interval` | `30` | 读数保持有效的秒数；不是数字的值按 `30` 处理 |
 | `@bluetooth_revamped_format` | `%s` | `#{bluetooth}` 的 printf 格式 |
 | `@bluetooth_revamped_separator` | `, ` | `#{bluetooth}` 中设备之间的文字 |
 | `@bluetooth_revamped_icon` | `BT` | `#{bluetooth_icon}` 的文字 |
 
 ```tmux
-set -g @bluetooth_revamped_separator ' | '
+set -g @bluetooth_revamped_separator ' / '
 set -g @bluetooth_revamped_format '[%s]'
 ```
 
-### 内部状态
+| 命令 | 作用 |
+|:--------|:-------------|
+| `bluetooth-revamped status NAME` | 打印一个占位符：`device`、`icon`、`count` 或 `min`。占位符调用的就是它 |
+| `bluetooth-revamped list` | 立即读取设备，每行一个；`--json` 输出一个对象 |
+| `bluetooth-revamped refresh` | 立即为状态栏读取设备 |
+| `bluetooth-revamped doctor` | 每个依赖一行，包括设备读取来源 |
+| `bluetooth-revamped version` | 版本号，然后是 tmux 的版本 |
+| `bluetooth-revamped help` | 帮助页面。`man bluetooth-revamped` 说明同样的命令和设置 |
+| `bluetooth-revamped` | 在终端中显示菜单：查看设备、检查这台机器，或者查看帮助 |
 
-以下选项由插件自己写入，请不要设置。
+每个 tmux 选项也都是命令的选项，例如 `--separator ' / '`，以及一个环境变量，例如 `BLUETOOTH_REVAMPED_SEPARATOR`。命令行优先于环境变量，环境变量优先于 tmux 选项。`--theme NAME`、`BLUETOOTH_REVAMPED_THEME`、`BLUETOOTH_REVAMPED_ACCENT`、`KODOUGU_THEME`、`KODOUGU_ACCENT`、`NO_COLOR` 和 tmux 选项 `@revamped_theme` 决定命令的外观，与每个 tmux-revamped 工具相同。
 
-| 选项 | 内容 |
-|:-------|:------|
-| `@bluetooth_revamped_device` | 缓存的设备列表，每行一个设备 |
-| `@bluetooth_revamped_device_ts`、`@bluetooth_revamped_device_lock` | 读取列表的时间，以及是否正在刷新 |
-
-<a id="key-bindings"></a>
-
-## 快捷键
+```console
+$ bluetooth-revamped list --json
+{"devices":[{"name":"AirPods Pro","battery":85},{"name":"Magic Keyboard","battery":null},{"name":"MX Master 3S","battery":50}]}
+```
 
 插件不绑定任何按键。
 
-<a id="how-it-works"></a>
-
 ## 工作原理
 
-每个占位符都会变成调用 [`src/bluetooth.sh`](src/bluetooth.sh) 的 `#()`。调用会立即输出缓存的设备列表。当列表比 `@bluetooth_revamped_interval` 秒旧时，它还会启动一次后台刷新；刷新受锁保护，并行的调用不会再启动第二次。下一次重绘状态栏时显示新的列表。
+tmux 加载插件时，[`bluetooth-revamped.tmux`](bluetooth-revamped.tmux) 把 `status-left` 和 `status-right` 中的每个占位符换成调用 `bluetooth-revamped status` 的 `#()`。这个调用立即打印保存在 `@bluetooth_revamped_device` 中的读数。读数比间隔更旧时，它还会在后台开始一次读取；`@bluetooth_revamped_device_lock` 中的锁保证并行的调用不会再开始第二次，下一次重绘就会显示结果。
 
-<a id="development"></a>
+macOS 读取 `system_profiler SPBluetoothDataType`。AirPods 会报告每只耳机和充电盒的电量，插件显示较低的耳机电量。Linux 读取 `upower --dump`，只统计蓝牙设备，所以笔记本电脑的电池不会出现。
+
+<a id="界面"></a>
+
+## 界面
+
+<details>
+<summary>每个界面都用 <code>make screens</code> 在真实的 tmux 中录制，按下的每个键都显示在状态栏上</summary>
+<br>
+
+<table>
+<tr>
+<td width="50%" valign="top"><img src="screens/status.png" alt="bluetooth-revamped：状态栏中的每个占位符"><br><sub>状态栏中的每个占位符，来自 <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/list.png" alt="bluetooth-revamped：list"><br><sub><code>list</code>，来自 <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/json.png" alt="bluetooth-revamped：list --json"><br><sub><code>list --json</code>，来自 <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/menu.png" alt="bluetooth-revamped：菜单"><br><sub>菜单，来自 <code>hero.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/menu-list.png" alt="bluetooth-revamped：从菜单查看设备"><br><sub>从菜单查看设备，来自 <code>hero.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/status-command.png" alt="bluetooth-revamped：status count 和 status min"><br><sub><code>status count</code> 和 <code>status min</code>，来自 <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/options.png" alt="bluetooth-revamped：分隔符、格式和图标选项"><br><sub>分隔符、格式和图标选项，来自 <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/refresh.png" alt="bluetooth-revamped：refresh"><br><sub><code>refresh</code>，来自 <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/doctor.png" alt="bluetooth-revamped：doctor"><br><sub><code>doctor</code>，来自 <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/plain-menu.png" alt="bluetooth-revamped：没有 gum 时的菜单"><br><sub>没有 gum 时的菜单，来自 <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/plain-doctor.png" alt="bluetooth-revamped：没有 gum 时的 doctor，使用 macOS 自带的工具"><br><sub>没有 gum 时的 doctor，使用 macOS 自带的工具，来自 <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/version.png" alt="bluetooth-revamped：版本"><br><sub>版本，来自 <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/error.png" alt="bluetooth-revamped：错误的占位符名称"><br><sub>错误的占位符名称，来自 <code>stills.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/accent.png" alt="bluetooth-revamped：来自 BLUETOOTH_REVAMPED_ACCENT 的强调色"><br><sub>来自 <code>BLUETOOTH_REVAMPED_ACCENT</code> 的强调色，来自 <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/themes.png" alt="bluetooth-revamped：六个主题下的标题"><br><sub>六个主题下的标题，来自 <code>themes.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/help.png" alt="bluetooth-revamped：帮助页面"><br><sub>帮助页面，来自 <code>help.tape</code></sub></td>
+</tr>
+</table>
+
+</details>
+
+## 可移植性
+
+插件是 POSIX `sh`。CI 在下面每一行上运行全部测试。
+
+| Shell | 状态 |
+|:------|:-------|
+| `dash`、macOS 上的 `/bin/sh` | 支持 |
+| `bash` 3.2 和 5.x、系统自带的 `zsh` 和 Homebrew 的 `zsh` | 支持 |
+
+| 系统 | 状态 |
+|:-------|:-------|
+| macOS | Apple Silicon 和 Intel 上的 Tahoe，使用系统自带的工具、Homebrew 的 GNU 工具和 Homebrew 的 uutils |
+| Linux | x86_64 和 arm64 上的 Ubuntu 26.04，使用 GNU coreutils、uutils 和 BusyBox |
+| FreeBSD、OpenBSD、NetBSD | 不在 CI 覆盖范围内；占位符为空，`doctor` 说明没有读取来源 |
 
 ## 开发
 
 | 命令 | 运行内容 |
 |:--------|:-------------|
-| `make test` | [`test/`](test) 下的 bats 测试 |
-| `make lint` | 对所有 shell 文件运行 shellcheck |
-| `make coverage` | 在 Linux 上用 kcov 统计行覆盖率，低于 95% 时失败 |
+| `make fmt` | 对每个脚本运行 shfmt `-i 2` |
+| `make lint` | shfmt、ShellCheck、mandoc、yamllint 和 actionlint，零告警 |
+| `make test` | 在系统 `sh` 下运行 bats 测试 |
+| `make test-all` | 在每个已安装的 shell 下运行测试，macOS 上包括 bash 和 zsh 的两种构建 |
+| `make test-linux` | 在 Ubuntu 容器中运行测试 |
+| `make coverage` | 在这台 Mac 和 Ubuntu 容器中运行 bashcov，合并后以 100% 为门槛 |
+| `make screens` | 用 VHS 在 tmux 中从真实插件录制上面的界面，在 macOS 上运行 |
+| `make install` | 把命令、man 手册和补全安装到 `PREFIX` 下 |
 
-<a id="license"></a>
+提交遵循 Conventional Commits 格式，直接进入 `main`。`main` 上的 `ci` 通过后，`release.yml` 运行 semantic-release：自上一个标签以来的每个 `feat` 或 `fix` 都会发布新版本，更新版本常量，并把说明写进 [`CHANGELOG.md`](CHANGELOG.md)。
 
 ## 许可证
 

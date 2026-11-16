@@ -1,0 +1,3 @@
+$ bluetooth-revamped --separator  |  --format [%s] status device
+[AirPods Pro 85% | Magic Keyboard | MX Master 50%]
+exit 0

@@ -1,0 +1,5 @@
+$ bluetooth-revamped list
+AirPods Pro 85%
+Magic Keyboard
+MX Master 50%
+exit 0

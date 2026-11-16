@@ -1,0 +1,174 @@
+.TH BLUETOOTH-REVAMPED 1 "2026-11-16" "bluetooth-revamped" "User Commands"
+.SH NAME
+bluetooth-revamped \- connected Bluetooth devices and their battery in tmux
+.SH SYNOPSIS
+.B bluetooth-revamped
+.RI [ options ]
+.B status
+.I name
+.br
+.B bluetooth-revamped
+.RI [ options ]
+.B list
+.RB [ \-\-json ]
+.br
+.B bluetooth-revamped refresh
+.br
+.B bluetooth-revamped doctor
+.br
+.B bluetooth-revamped version
+.br
+.B bluetooth-revamped help
+.SH DESCRIPTION
+.B bluetooth-revamped
+shows every connected Bluetooth device and its battery in the tmux status
+line. The entry point
+.B bluetooth-revamped.tmux
+replaces the placeholders
+.BR #{bluetooth} ,
+.BR #{bluetooth_icon} ,
+.B #{bluetooth_count}
+and
+.B #{bluetooth_min}
+in
+.B status-left
+and
+.B status-right
+with calls to
+.BR "bluetooth-revamped status" .
+Each call prints the reading stored in a tmux option at once, and starts one
+background reading when the stored one is older than the interval.
+.PP
+macOS reads
+.BR "system_profiler SPBluetoothDataType" ;
+Linux reads
+.BR "upower \-\-dump" .
+.PP
+Run with no command on a terminal, it offers a menu.
+.SH COMMANDS
+.TP
+.BI status " name"
+Print one placeholder:
+.B device
+for every device and its battery,
+.B icon
+for the icon while a device is connected,
+.B count
+for the number of devices, or
+.B min
+for the device with the lowest battery.
+.TP
+.B list
+Read the devices now, store the reading and print one device per line.
+.TP
+.B refresh
+Read the devices now and store the reading for the status line.
+.TP
+.B doctor
+Print one row per dependency: tmux, the Bluetooth reader, gum, the desktop
+notifier and the core tools. Exits 1 only when a required tool is missing.
+.TP
+.B version
+Print the version, then the tmux version.
+.TP
+.B help
+Print the help page.
+.SH OPTIONS
+.TP
+.BI \-\-interval " seconds"
+How long a reading stays fresh. The default is 30.
+.TP
+.BI \-\-format " format"
+The printf format for the device list. The default is
+.BR %s .
+.TP
+.BI \-\-separator " text"
+The text between devices. The default is a comma and a space.
+.TP
+.BI \-\-icon " text"
+The text for the icon placeholder. The default is
+.BR BT .
+.TP
+.B \-\-json
+.B list
+prints one JSON object.
+.TP
+.BI \-\-theme " name"
+Colours of the terminal interface:
+.BR kodougu ,
+.BR catppuccin\-mocha ,
+.BR catppuccin\-latte ,
+.BR dracula ,
+.BR nord ,
+.BR gruvbox ,
+.B tokyo\-night
+or
+.BR mono .
+The default is
+.BR kodougu .
+.PP
+Each option also takes the form
+.IR \-\-name = value ,
+and
+.B \-\-
+ends the options.
+.SH ENVIRONMENT
+.TP
+.BR BLUETOOTH_REVAMPED_INTERVAL ", " BLUETOOTH_REVAMPED_FORMAT ", " BLUETOOTH_REVAMPED_SEPARATOR ", " BLUETOOTH_REVAMPED_ICON
+The same as the option of the same name. An option wins over the environment,
+and the environment over the tmux option.
+.TP
+.B BLUETOOTH_REVAMPED_THEME
+The theme when
+.B \-\-theme
+is not given.
+.TP
+.B BLUETOOTH_REVAMPED_ACCENT
+A colour such as #CBA6F7 that replaces the accent of the theme.
+.TP
+.B KODOUGU_THEME
+The theme of every kodougu and tmux-revamped tool, when neither
+.B \-\-theme
+nor
+.B BLUETOOTH_REVAMPED_THEME
+is set.
+.TP
+.B KODOUGU_ACCENT
+The accent of every kodougu and tmux-revamped tool, when
+.B BLUETOOTH_REVAMPED_ACCENT
+is not set.
+.TP
+.B NO_COLOR
+Turns colour off in every theme.
+.SH TMUX OPTIONS
+.TP
+.B @bluetooth_revamped_interval
+Seconds a reading stays fresh. A value that is not a number means 30.
+.TP
+.B @bluetooth_revamped_format
+The printf format for
+.BR #{bluetooth} .
+The default is
+.BR %s .
+.TP
+.B @bluetooth_revamped_separator
+The text between devices in
+.BR #{bluetooth} .
+The default is a comma and a space.
+.TP
+.B @bluetooth_revamped_icon
+The text for
+.BR #{bluetooth_icon} .
+The default is
+.BR BT .
+.TP
+.B @revamped_theme
+The theme of every tmux-revamped tool, when nothing else sets one. The default
+is
+.BR kodougu .
+.SH EXIT STATUS
+0 on success, 1 on any failure.
+.SH SEE ALSO
+.BR tmux (1),
+.BR system_profiler (8),
+.BR upower (1)

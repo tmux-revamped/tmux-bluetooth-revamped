@@ -1,0 +1,50 @@
+$ bluetooth-revamped help
+bluetooth-revamped - connected Bluetooth devices and their battery in tmux
+
+usage:
+  bluetooth-revamped status NAME   print one placeholder: device, icon,
+                                   count or min
+  bluetooth-revamped list          read the devices now, one per line
+  bluetooth-revamped refresh       read the devices now for the status line
+  bluetooth-revamped doctor        check this machine
+  bluetooth-revamped version       print the version
+  bluetooth-revamped help          print this page
+
+options:
+  --interval SECONDS   how long a reading stays fresh
+  --format FORMAT      printf format for the device list
+  --separator TEXT     text between devices
+  --icon TEXT          text for the icon placeholder
+  --json               list prints one JSON object
+  --theme NAME         the look: kodougu, catppuccin-mocha, catppuccin-latte,
+                       dracula, nord, gruvbox, tokyo-night or mono
+
+environment:
+  BLUETOOTH_REVAMPED_INTERVAL    the same as --interval
+  BLUETOOTH_REVAMPED_FORMAT      the same as --format
+  BLUETOOTH_REVAMPED_SEPARATOR   the same as --separator
+  BLUETOOTH_REVAMPED_ICON        the same as --icon
+  BLUETOOTH_REVAMPED_THEME       the look, when --theme is not given
+  BLUETOOTH_REVAMPED_ACCENT      a colour such as #CBA6F7 for the accent
+  KODOUGU_THEME                  the family look, when neither is given
+  KODOUGU_ACCENT                 the family accent, when the tool's is unset
+  NO_COLOR                       turn colour off
+
+tmux options:
+  @bluetooth_revamped_interval    seconds a reading stays fresh (default 30)
+  @bluetooth_revamped_format      printf format for #{bluetooth} (default %s)
+  @bluetooth_revamped_separator   text between devices (default ", ")
+  @bluetooth_revamped_icon        text for #{bluetooth_icon} (default BT)
+  @revamped_theme                 the family look (default kodougu)
+
+notes:
+  The placeholders #{bluetooth}, #{bluetooth_icon}, #{bluetooth_count} and
+  #{bluetooth_min} print the stored reading at once, and start one background
+  reading when it is older than the interval. macOS reads system_profiler,
+  Linux reads upower.
+
+examples:
+  bluetooth-revamped list --json
+  bluetooth-revamped --separator ' | ' status device
+  bluetooth-revamped doctor
+exit 0

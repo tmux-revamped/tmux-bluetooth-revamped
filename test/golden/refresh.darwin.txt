@@ -1,0 +1,3 @@
+$ bluetooth-revamped refresh
+Refreshed. 3 devices are connected.
+exit 0

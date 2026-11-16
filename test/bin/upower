@@ -1,0 +1,3 @@
+#!/bin/sh
+[ -z "${REVAMPED_TEST_BLUETOOTH_LOG:-}" ] || printf '%s\n' "$0 $*" >>"${REVAMPED_TEST_BLUETOOTH_LOG}"
+[ -z "${REVAMPED_TEST_BLUETOOTH_DUMP:-}" ] || cat "${REVAMPED_TEST_BLUETOOTH_DUMP}"

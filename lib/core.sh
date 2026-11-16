@@ -1,0 +1,7 @@
+#!/bin/sh
+# shellcheck disable=SC2034
+
+[ -n "${BLUETOOTH_REVAMPED_CORE_LOADED:-}" ] && return 0
+BLUETOOTH_REVAMPED_CORE_LOADED=1
+
+readonly BLUETOOTH_REVAMPED_VERSION="1.2.1"

@@ -1,0 +1,11 @@
+$ bluetooth-revamped doctor
+tmux               ok       <path>, 3.8
+system_profiler    ok       <path>
+gum                ok       <path>
+notifier           warn     no osascript or notify-send, so notifications stay in the status line
+awk                ok       <path>, <flavor>
+sed                ok       <path>, <flavor>
+tr                 ok       <path>, <flavor>
+date               ok       <path>, <flavor>
+stat               ok       <path>, <flavor>
+exit 0
