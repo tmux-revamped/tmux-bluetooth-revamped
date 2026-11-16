@@ -15,3 +15,15 @@ load "${BATS_TEST_DIRNAME:-.}/tmux_helpers.bash"
   actual="$(cat "${log}")"
   [[ "${actual}" == *"-f /dev/null new-session"* ]]
 }
+
+@test "tmux_helpers - a test never sees the tmux it was started from" {
+  # Arrange
+  local name=TMUX
+
+  # Act
+  run printenv "${name}"
+
+  # Assert
+  [[ "${status}" -eq 1 ]]
+  [[ -z "${output}" ]]
+}

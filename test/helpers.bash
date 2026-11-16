@@ -3,6 +3,7 @@
 REVAMPED_TESTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 harness_setup() {
+  unset TMUX TMUX_PANE
   REVAMPED_TEST_TMUX_DIR="$(mktemp -d "${BATS_TEST_TMPDIR:-${TMPDIR:-/tmp}}/tmux-store.XXXXXX")"
   REVAMPED_TEST_TMUX_LOG="${REVAMPED_TEST_TMUX_DIR}.log"
   : >"${REVAMPED_TEST_TMUX_LOG}"

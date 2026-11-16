@@ -5,6 +5,7 @@ while [[ "${PLUGIN_DIR}" != "/" ]] && [[ ! -d "${PLUGIN_DIR}/lib" ]]; do
   PLUGIN_DIR="$(dirname "${PLUGIN_DIR}")"
 done
 
+unset TMUX TMUX_PANE
 TMUX_SOCKET="/tmp/tmux-plugin-test-${BASHPID}-${RANDOM}"
 
 setup_tmux_server() {

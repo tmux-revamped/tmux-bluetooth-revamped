@@ -29,3 +29,14 @@ setup() {
   # Assert
   [[ "${status}" -eq 1 ]]
 }
+
+@test "command.sh - the harness hides the tmux a test was started from" {
+  # Arrange
+  local name=TMUX_PANE
+
+  # Act
+  run printenv "${name}"
+
+  # Assert
+  [[ "${status}" -eq 1 ]]
+}
