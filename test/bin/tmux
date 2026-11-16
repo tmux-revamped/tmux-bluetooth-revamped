@@ -17,6 +17,31 @@ key() {
   printf '%s/%s' "${store}" "${key_name}"
 }
 
+expand_options() {
+  printf '%s\n' "$1" | REVAMPED_TEST_TMUX_STORE="${store}" awk '{
+    line = $0
+    out = ""
+    while ((at = index(line, "#{@")) > 0) {
+      out = out substr(line, 1, at - 1)
+      line = substr(line, at + 2)
+      close_at = index(line, "}")
+      name = substr(line, 1, close_at - 1)
+      line = substr(line, close_at + 1)
+      file = "g.-." name
+      gsub(/[^A-Za-z0-9_.-]/, "_", file)
+      file = ENVIRON["REVAMPED_TEST_TMUX_STORE"] "/" file
+      value = ""
+      count = 0
+      while ((getline row < file) > 0) {
+        value = value (count++ ? "\n" : "") row
+      }
+      close(file)
+      out = out value
+    }
+    print out line
+  }'
+}
+
 if [ "${1:-}" = -V ]; then
   printf 'tmux %s\n' "${REVAMPED_TEST_TMUX_VERSION:-3.6}"
   exit 0
@@ -72,7 +97,14 @@ list-clients)
   ;;
 display-message)
   file="$(key "display.${target}.$1")"
-  [ -f "${file}" ] && cat "${file}"
+  if [ -f "${file}" ]; then
+    cat "${file}"
+  else
+    case "$1" in
+    *'#{@'*) expand_options "$1" ;;
+    *) ;;
+    esac
+  fi
   ;;
 *) ;;
 esac

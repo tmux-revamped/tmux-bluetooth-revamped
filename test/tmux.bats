@@ -224,3 +224,15 @@ setup() {
   # Assert
   [[ "${output}" = "0" ]]
 }
+
+@test "tmux stub - display-message expands the options a test stored" {
+  # Arrange
+  printf 'a, b' >"${REVAMPED_TEST_TMUX_DIR}/g.-._x"
+  printf 'line one\nline two' >"${REVAMPED_TEST_TMUX_DIR}/g.-._y"
+
+  # Act
+  run tmux display-message -p '[#{@x}|#{@missing}|#{@y}]'
+
+  # Assert
+  [[ "${output}" == $'[a, b||line one\nline two]' ]]
+}
