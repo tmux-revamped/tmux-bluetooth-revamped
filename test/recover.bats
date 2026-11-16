@@ -63,7 +63,7 @@ recover_answer() {
 
 recover_run() {
   cd "${WORK}/repo" || return 1
-  run sh "${WORK}/scripts/recover.sh" gufranco/member
+  run sh "${WORK}/scripts/recover.sh" octocat/member
   DISPATCHES=0
   while IFS= read -r _; do
     DISPATCHES=$((DISPATCHES + 1))

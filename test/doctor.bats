@@ -134,3 +134,18 @@ flavor() {
   [[ "${status}" -eq 0 ]]
   [[ "${output}" == "notifier	@warn:warn	no osascript"* ]]
 }
+
+@test "doctor - the notifier row names the backend it would use" {
+  # Arrange
+  stub_command osascript
+  stub_command notify-send
+  harness_hide osascript notify-send
+  export REVAMPED_TEST_UNAME_S=Linux
+
+  # Act
+  lib_run cli 'revamped_cli_start "" && . "${REVAMPED_LIB}/doctor.sh" && revamped_doctor_notifier && printf "%s" "${REVAMPED_DOCTOR_ROWS}"'
+
+  # Assert
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "notifier           ok       notify-send" ]]
+}

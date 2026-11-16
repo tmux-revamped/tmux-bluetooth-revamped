@@ -44,7 +44,7 @@ ci_state_answer() {
 
 ci_state_run() {
   cd "${WORK}/repo" || return 1
-  run sh "${SCRIPT}" gufranco/member
+  run sh "${SCRIPT}" octocat/member
 }
 
 @test "a commit with no ci run reports none" {
