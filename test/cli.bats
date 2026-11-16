@@ -317,7 +317,7 @@ answers() {
   harness_hide gum
 
   # Act
-  on_tty <<<"3"
+  on_tty <<<"4"
 
   # Assert
   [[ "${status}" -eq 0 ]]
@@ -325,12 +325,12 @@ answers() {
   [[ "${output}" == *"bluetooth-revamped - connected Bluetooth devices"* ]]
 }
 
-@test "cli - the plain menu's second choice runs doctor" {
+@test "cli - the plain menu's third choice runs doctor" {
   # Arrange
   harness_hide gum
 
   # Act
-  on_tty <<<"2"
+  on_tty <<<"3"
 
   # Assert
   [[ "${status}" -eq 0 ]]

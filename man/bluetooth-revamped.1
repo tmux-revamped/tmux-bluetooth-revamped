@@ -14,6 +14,15 @@ bluetooth-revamped \- connected Bluetooth devices and their battery in tmux
 .br
 .B bluetooth-revamped refresh
 .br
+.B bluetooth-revamped
+.RB { connect | disconnect }
+.I device
+.br
+.B bluetooth-revamped power
+.RB { on | off | toggle }
+.br
+.B bluetooth-revamped popup
+.br
 .B bluetooth-revamped doctor
 .br
 .B bluetooth-revamped version
@@ -44,6 +53,16 @@ macOS reads
 Linux reads
 .BR "upower \-\-dump" .
 .PP
+macOS connects, disconnects and switches power through
+.BR blueutil ;
+Linux through
+.BR bluetoothctl .
+.PP
+The entry point binds
+.B prefix M-h
+to a popup that shows the device table and its actions, unless the person
+already bound that key.
+.PP
 Run with no command on a terminal, it offers a menu.
 .SH COMMANDS
 .TP
@@ -64,9 +83,22 @@ Read the devices now, store the reading and print one device per line.
 .B refresh
 Read the devices now and store the reading for the status line.
 .TP
+.BI connect " device"
+Connect a paired device, named by its name or its address.
+.TP
+.BI disconnect " device"
+Disconnect a device.
+.TP
+.BR power " on|off|toggle"
+Turn Bluetooth on or off, or toggle it.
+.TP
+.B popup
+Show the device table, then offer to connect or disconnect a device or to
+switch Bluetooth on or off.
+.TP
 .B doctor
-Print one row per dependency: tmux, the Bluetooth reader, gum, the desktop
-notifier and the core tools. Exits 1 only when a required tool is missing.
+Print one row per dependency: tmux, the Bluetooth reader, the tool for the
+actions, the popup key, gum, the desktop notifier and the core tools. Exits 1 only when a required tool is missing.
 .TP
 .B version
 Print the version, then the tmux version.
@@ -88,6 +120,22 @@ The text between devices. The default is a comma and a space.
 .BI \-\-icon " text"
 The text for the icon placeholder. The default is
 .BR BT .
+.TP
+.BR \-\-icons " 0|1"
+1 puts a glyph for each device's type before it in the device list.
+.TP
+.BR \-\-notify " 0|1"
+1 sends a desktop notification when a connected device's battery drops below
+the low level, once until it rises above it again.
+.TP
+.BI \-\-low " percent"
+The low battery level. The default is 20.
+.TP
+.BI \-\-popup\-key " key"
+The prefix key for the popup, or
+.B none
+for no key. The default is
+.BR M\-h .
 .TP
 .B \-\-json
 .B list
@@ -114,7 +162,7 @@ and
 ends the options.
 .SH ENVIRONMENT
 .TP
-.BR BLUETOOTH_REVAMPED_INTERVAL ", " BLUETOOTH_REVAMPED_FORMAT ", " BLUETOOTH_REVAMPED_SEPARATOR ", " BLUETOOTH_REVAMPED_ICON
+.BR BLUETOOTH_REVAMPED_INTERVAL ", " BLUETOOTH_REVAMPED_FORMAT ", " BLUETOOTH_REVAMPED_SEPARATOR ", " BLUETOOTH_REVAMPED_ICON ", " BLUETOOTH_REVAMPED_ICONS ", " BLUETOOTH_REVAMPED_NOTIFY ", " BLUETOOTH_REVAMPED_LOW ", " BLUETOOTH_REVAMPED_POPUP_KEY
 The same as the option of the same name. An option wins over the environment,
 and the environment over the tmux option.
 .TP
@@ -162,6 +210,23 @@ The text for
 The default is
 .BR BT .
 .TP
+.B @bluetooth_revamped_icons
+1 puts a type glyph before each device in
+.BR #{bluetooth} .
+The default is 0.
+.TP
+.B @bluetooth_revamped_notify
+1 notifies when a battery runs low. The default is 0.
+.TP
+.B @bluetooth_revamped_low
+The low battery level in percent. A value that is not a number means 20.
+.TP
+.B @bluetooth_revamped_popup_key
+The prefix key for the popup, or
+.BR none .
+The default is
+.BR M\-h .
+.TP
 .B @revamped_theme
 The theme of every tmux-revamped tool, when nothing else sets one. The default
 is
@@ -171,4 +236,6 @@ is
 .SH SEE ALSO
 .BR tmux (1),
 .BR system_profiler (8),
+.BR blueutil (1),
+.BR bluetoothctl (1),
 .BR upower (1)

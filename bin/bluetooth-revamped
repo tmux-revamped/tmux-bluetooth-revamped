@@ -10,7 +10,7 @@ esac
 bluetooth_revamped_lib="$(cd "${bluetooth_revamped_self%/*}/../lib" && pwd)" || exit 1
 for bluetooth_revamped_inherited in $(env | sed -n -e 's/^\(REVAMPED_[A-Za-z0-9_]*\)=.*/\1/p' -e 's/^\(BLUETOOTH_REVAMPED_[A-Za-z0-9_]*\)=.*/\1/p'); do
   case "${bluetooth_revamped_inherited}" in
-  REVAMPED_TEST_* | BLUETOOTH_REVAMPED_THEME | BLUETOOTH_REVAMPED_ACCENT | BLUETOOTH_REVAMPED_INTERVAL | BLUETOOTH_REVAMPED_FORMAT | BLUETOOTH_REVAMPED_SEPARATOR | BLUETOOTH_REVAMPED_ICON) continue ;;
+  REVAMPED_TEST_* | BLUETOOTH_REVAMPED_THEME | BLUETOOTH_REVAMPED_ACCENT | BLUETOOTH_REVAMPED_INTERVAL | BLUETOOTH_REVAMPED_FORMAT | BLUETOOTH_REVAMPED_SEPARATOR | BLUETOOTH_REVAMPED_ICON | BLUETOOTH_REVAMPED_ICONS | BLUETOOTH_REVAMPED_NOTIFY | BLUETOOTH_REVAMPED_LOW | BLUETOOTH_REVAMPED_POPUP_KEY) continue ;;
   *) unset "${bluetooth_revamped_inherited}" ;;
   esac
 done
@@ -20,6 +20,94 @@ REVAMPED_LIB="${bluetooth_revamped_lib}"
 . "${REVAMPED_LIB}/core.sh"
 # shellcheck source=SCRIPTDIR/../lib/bluetooth.sh
 . "${REVAMPED_LIB}/bluetooth.sh"
+
+bluetooth_revamped_act() {
+  [ -n "${2:-}" ] || bluetooth_revamped_usage "no device given"
+  bluetooth_revamped_act_verb="$1"
+  shift
+  bluetooth_revamped_act_device="$*"
+  bluetooth_revamped_action "${bluetooth_revamped_act_verb}" "${bluetooth_revamped_act_device}"
+  [ -z "${BLUETOOTH_REVAMPED_PROBLEM}" ] || bluetooth_revamped_bad "${BLUETOOTH_REVAMPED_PROBLEM}"
+  bluetooth_revamped_done
+}
+
+bluetooth_revamped_power_command() {
+  case "$1" in
+  on | off | toggle) bluetooth_revamped_power "$1" ;;
+  '') bluetooth_revamped_usage "no power state given" ;;
+  *) bluetooth_revamped_bad "power must be on, off or toggle, got: $1" ;;
+  esac
+  [ -z "${BLUETOOTH_REVAMPED_PROBLEM}" ] || bluetooth_revamped_bad "${BLUETOOTH_REVAMPED_PROBLEM}"
+  bluetooth_revamped_done
+}
+
+bluetooth_revamped_done() {
+  if revamped_ui_out; then
+    revamped_ui_done "${BLUETOOTH_REVAMPED_DONE}"
+    return 0
+  fi
+  printf '%s\n' "${BLUETOOTH_REVAMPED_DONE}"
+}
+
+bluetooth_revamped_pick() {
+  bluetooth_revamped_pick_header="$1"
+  shift
+  [ "$#" -gt 0 ] || bluetooth_revamped_bad "no device to choose from"
+  if revamped_ui_prompts; then
+    revamped_ui_choose "${bluetooth_revamped_pick_header}" "$@" || exit 1
+    return 0
+  fi
+  printf '%s\n' "${bluetooth_revamped_pick_header}" >&2
+  bluetooth_revamped_pick_n=0
+  for bluetooth_revamped_pick_item in "$@"; do
+    bluetooth_revamped_pick_n=$((bluetooth_revamped_pick_n + 1))
+    printf '  %s) %s\n' "${bluetooth_revamped_pick_n}" "${bluetooth_revamped_pick_item}" >&2
+  done
+  printf 'Choice [1]: ' >&2
+  IFS= read -r bluetooth_revamped_pick_answer || exit 1
+  revamped_cli_menu_pick "${bluetooth_revamped_pick_answer:-1}" "$@"
+}
+
+bluetooth_revamped_table() {
+  if revamped_ui_out; then
+    printf 'Device\tState\tBattery\tType\n%s\n' "${BLUETOOTH_REVAMPED_RECORDS}" | awk -F '\t' 'NR == 1 { print; next } NF >= 5 { state = ($1 == "connected") ? "@ok:connected" : "paired"; print $5 "\t" state "\t" ($4 == "" ? "-" : $4 "%") "\t" $3 }' | revamped_ui_table
+    return 0
+  fi
+  printf '%s\n' "${BLUETOOTH_REVAMPED_RECORDS}" | awk -F '\t' 'NF >= 5 { printf "%-24s %-10s %-8s %s\n", $5, $1, ($4 == "" ? "-" : $4 "%"), $3 }'
+}
+
+bluetooth_revamped_choose_device() {
+  bluetooth_revamped_choose_names=$(bluetooth_revamped_names "$1")
+  set --
+  while IFS= read -r bluetooth_revamped_choose_name; do
+    [ -z "${bluetooth_revamped_choose_name}" ] || set -- "$@" "${bluetooth_revamped_choose_name}"
+  done <<EOF
+${bluetooth_revamped_choose_names}
+EOF
+  bluetooth_revamped_pick "Which device?" "$@"
+}
+
+bluetooth_revamped_popup_act() {
+  bluetooth_revamped_popup_device=$(bluetooth_revamped_choose_device "$2")
+  bluetooth_revamped_act "$1" "${bluetooth_revamped_popup_device}"
+}
+
+bluetooth_revamped_popup() {
+  revamped_cli_require_terminal
+  bluetooth_revamped_collect
+  bluetooth_revamped_table
+  bluetooth_revamped_popup_state=$(bluetooth_revamped_power_state)
+  bluetooth_revamped_popup_power="Turn Bluetooth off"
+  [ "${bluetooth_revamped_popup_state}" = on ] || bluetooth_revamped_popup_power="Turn Bluetooth on"
+  bluetooth_revamped_popup_choice=$(revamped_cli_menu "Connect a device" "Disconnect a device" "${bluetooth_revamped_popup_power}" "Close")
+  case "${bluetooth_revamped_popup_choice}" in
+  "Connect a device") bluetooth_revamped_popup_act connect paired ;;
+  "Disconnect a device") bluetooth_revamped_popup_act disconnect connected ;;
+  "Turn Bluetooth off") bluetooth_revamped_power_command off ;;
+  "Turn Bluetooth on") bluetooth_revamped_power_command on ;;
+  *) return 0 ;;
+  esac
+}
 
 bluetooth_revamped_interface() {
   # shellcheck disable=SC2034
@@ -32,6 +120,8 @@ bluetooth_revamped_interface() {
   . "${REVAMPED_LIB}/cli.sh"
   # shellcheck source=SCRIPTDIR/../lib/doctor.sh
   . "${REVAMPED_LIB}/doctor.sh"
+  # shellcheck source=SCRIPTDIR/../lib/actions.sh
+  . "${REVAMPED_LIB}/actions.sh"
 }
 
 bluetooth_revamped_usage() {
@@ -44,28 +134,35 @@ bluetooth_revamped_help() {
 bluetooth-revamped - connected Bluetooth devices and their battery in tmux
 
 usage:
-  bluetooth-revamped status NAME   print one placeholder: device, icon,
-                                   count or min
-  bluetooth-revamped list          read the devices now, one per line
-  bluetooth-revamped refresh       read the devices now for the status line
-  bluetooth-revamped doctor        check this machine
-  bluetooth-revamped version       print the version
-  bluetooth-revamped help          print this page
+  bluetooth-revamped status NAME       print one placeholder: device, icon,
+                                       count or min
+  bluetooth-revamped list              read the devices now, one per line
+  bluetooth-revamped refresh           read the devices now for the status line
+  bluetooth-revamped connect DEVICE    connect a paired device, by name or
+                                       address
+  bluetooth-revamped disconnect DEVICE disconnect a device
+  bluetooth-revamped power STATE       turn Bluetooth on, off or toggle it
+  bluetooth-revamped popup             the device table and its actions
+  bluetooth-revamped doctor            check this machine
+  bluetooth-revamped version           print the version
+  bluetooth-revamped help              print this page
 
 options:
   --interval SECONDS   how long a reading stays fresh
   --format FORMAT      printf format for the device list
   --separator TEXT     text between devices
   --icon TEXT          text for the icon placeholder
+  --icons 0|1          a glyph for each device's type in the device list
+  --notify 0|1         a desktop notification when a battery runs low
+  --low PERCENT        the level that counts as low
+  --popup-key KEY      the prefix key for the popup, or none
   --json               list prints one JSON object
   --theme NAME         the look: kodougu, catppuccin-mocha, catppuccin-latte,
                        dracula, nord, gruvbox, tokyo-night or mono
 
 environment:
-  BLUETOOTH_REVAMPED_INTERVAL    the same as --interval
-  BLUETOOTH_REVAMPED_FORMAT      the same as --format
-  BLUETOOTH_REVAMPED_SEPARATOR   the same as --separator
-  BLUETOOTH_REVAMPED_ICON        the same as --icon
+  BLUETOOTH_REVAMPED_INTERVAL, _FORMAT, _SEPARATOR, _ICON, _ICONS, _NOTIFY,
+  _LOW and _POPUP_KEY            the same as the option of that name
   BLUETOOTH_REVAMPED_THEME       the look, when --theme is not given
   BLUETOOTH_REVAMPED_ACCENT      a colour such as #CBA6F7 for the accent
   KODOUGU_THEME                  the family look, when neither is given
@@ -77,18 +174,26 @@ tmux options:
   @bluetooth_revamped_format      printf format for #{bluetooth} (default %s)
   @bluetooth_revamped_separator   text between devices (default ", ")
   @bluetooth_revamped_icon        text for #{bluetooth_icon} (default BT)
+  @bluetooth_revamped_icons       1 puts a type glyph before each device
+                                  (default 0)
+  @bluetooth_revamped_notify      1 notifies when a battery runs low
+                                  (default 0)
+  @bluetooth_revamped_low         the low battery level in percent (default 20)
+  @bluetooth_revamped_popup_key   the prefix key for the popup (default M-h)
   @revamped_theme                 the family look (default kodougu)
 
 notes:
   The placeholders #{bluetooth}, #{bluetooth_icon}, #{bluetooth_count} and
   #{bluetooth_min} print the stored reading at once, and start one background
-  reading when it is older than the interval. macOS reads system_profiler,
-  Linux reads upower.
+  reading when it is older than the interval. macOS reads system_profiler and
+  acts through blueutil; Linux reads upower and bluetoothctl. A low battery
+  notifies once, and again only after it recovered.
 
 examples:
   bluetooth-revamped list --json
+  bluetooth-revamped connect 'MX Master 3S'
+  bluetooth-revamped power toggle
   bluetooth-revamped --separator ' | ' status device
-  bluetooth-revamped doctor
 HELP
 }
 
@@ -108,9 +213,32 @@ bluetooth_revamped_doctor_source() {
   fi
 }
 
+bluetooth_revamped_doctor_actions() {
+  bluetooth_revamped_doctor_tool=$(bluetooth_revamped_tool)
+  bluetooth_revamped_doctor_path=$(command -v "${bluetooth_revamped_doctor_tool}" 2>/dev/null) || bluetooth_revamped_doctor_path=""
+  if [ -n "${bluetooth_revamped_doctor_path}" ]; then
+    revamped_doctor_line "${bluetooth_revamped_doctor_tool}" ok "${bluetooth_revamped_doctor_path}"
+    return 0
+  fi
+  bluetooth_revamped_doctor_remedy=$(bluetooth_revamped_remedy)
+  revamped_doctor_line "${bluetooth_revamped_doctor_tool}" warn "connect, disconnect and power need it: ${bluetooth_revamped_doctor_remedy}"
+}
+
+bluetooth_revamped_doctor_key() {
+  bluetooth_revamped_doctor_key_name=$(bluetooth_revamped_popup_key)
+  [ "${bluetooth_revamped_doctor_key_name}" != none ] || return 0
+  bluetooth_revamped_doctor_key_bound=$(tmux list-keys -T prefix "${bluetooth_revamped_doctor_key_name}" 2>/dev/null) || bluetooth_revamped_doctor_key_bound=""
+  case "${bluetooth_revamped_doctor_key_bound}" in
+  "" | *bluetooth-revamped*) revamped_doctor_line "prefix ${bluetooth_revamped_doctor_key_name}" ok "opens the device popup" ;;
+  *) revamped_doctor_line "prefix ${bluetooth_revamped_doctor_key_name}" warn "already bound, so the popup has no key; set @bluetooth_revamped_popup_key" ;;
+  esac
+}
+
 bluetooth_revamped_doctor() {
   revamped_doctor_tmux
   bluetooth_revamped_doctor_source
+  bluetooth_revamped_doctor_actions
+  bluetooth_revamped_doctor_key
   revamped_doctor_gum
   revamped_doctor_notifier
   revamped_doctor_core_tools awk sed tr date stat
@@ -119,8 +247,8 @@ bluetooth_revamped_doctor() {
 }
 
 bluetooth_revamped_list() {
-  bluetooth_revamped_list_devices=$(bluetooth_revamped_read)
-  revamped_cache_set device "${bluetooth_revamped_list_devices}" || :
+  bluetooth_revamped_refresh
+  bluetooth_revamped_list_devices="${BLUETOOTH_REVAMPED_LIST}"
   if [ -n "${bluetooth_revamped_json}" ]; then
     printf '%s\n' "${bluetooth_revamped_list_devices}" | bluetooth_revamped_json
     return 0
@@ -129,9 +257,9 @@ bluetooth_revamped_list() {
 }
 
 bluetooth_revamped_refresh_command() {
-  bluetooth_revamped_refresh_list=$(bluetooth_revamped_read)
-  revamped_cache_set device "${bluetooth_revamped_refresh_list}" || bluetooth_revamped_bad "no tmux server is running, so the reading has nowhere to go"
-  bluetooth_revamped_refresh_count=$(bluetooth_revamped_render_count "${bluetooth_revamped_refresh_list}")
+  bluetooth_revamped_refresh
+  [ "${BLUETOOTH_REVAMPED_STORED}" = 1 ] || bluetooth_revamped_bad "no tmux server is running, so the reading has nowhere to go"
+  bluetooth_revamped_refresh_count=$(bluetooth_revamped_render_count "${BLUETOOTH_REVAMPED_LIST}")
   case "${bluetooth_revamped_refresh_count}" in
   1) printf 'Refreshed. 1 device is connected.\n' ;;
   *) printf 'Refreshed. %s devices are connected.\n' "${bluetooth_revamped_refresh_count}" ;;
@@ -148,9 +276,10 @@ bluetooth_revamped_status_command() {
 
 bluetooth_revamped_menu() {
   revamped_cli_require_terminal
-  bluetooth_revamped_choice=$(revamped_cli_menu "Show the devices" "Check this machine" "Help")
+  bluetooth_revamped_choice=$(revamped_cli_menu "Show the devices" "Manage the devices" "Check this machine" "Help")
   case "${bluetooth_revamped_choice}" in
   "Show the devices") bluetooth_revamped_list ;;
+  "Manage the devices") bluetooth_revamped_popup ;;
   "Check this machine") bluetooth_revamped_doctor ;;
   *) bluetooth_revamped_help ;;
   esac
@@ -162,6 +291,9 @@ bluetooth_revamped_dispatch() {
   version | --version | -V) bluetooth_revamped_version ;;
   help | --help | -h) bluetooth_revamped_help ;;
   list) bluetooth_revamped_list ;;
+  connect | disconnect) bluetooth_revamped_act "$@" ;;
+  power) bluetooth_revamped_power_command "${2:-}" ;;
+  popup) bluetooth_revamped_popup ;;
   "") bluetooth_revamped_menu ;;
   *) revamped_cli_usage_error "unknown command '$1'" ;;
   esac
@@ -171,10 +303,22 @@ bluetooth_revamped_value() {
   [ "$2" -gt 0 ] || bluetooth_revamped_usage "option '$1' needs a value"
 }
 
-bluetooth_revamped_check_interval() {
-  [ -n "${BLUETOOTH_REVAMPED_INTERVAL+1}" ] || return 0
-  revamped_cache_is_number "${BLUETOOTH_REVAMPED_INTERVAL}" && return 0
-  bluetooth_revamped_bad "--interval must be a whole number of seconds, got: ${BLUETOOTH_REVAMPED_INTERVAL}"
+bluetooth_revamped_check_settings() {
+  if [ -n "${BLUETOOTH_REVAMPED_INTERVAL+1}" ] && ! revamped_cache_is_number "${BLUETOOTH_REVAMPED_INTERVAL}"; then
+    bluetooth_revamped_bad "--interval must be a whole number of seconds, got: ${BLUETOOTH_REVAMPED_INTERVAL}"
+  fi
+  if [ -n "${BLUETOOTH_REVAMPED_LOW+1}" ] && ! revamped_cache_is_number "${BLUETOOTH_REVAMPED_LOW}"; then
+    bluetooth_revamped_bad "--low must be a whole number of percent, got: ${BLUETOOTH_REVAMPED_LOW}"
+  fi
+  bluetooth_revamped_check_switch icons "${BLUETOOTH_REVAMPED_ICONS-0}"
+  bluetooth_revamped_check_switch notify "${BLUETOOTH_REVAMPED_NOTIFY-0}"
+}
+
+bluetooth_revamped_check_switch() {
+  case "$2" in
+  0 | 1) return 0 ;;
+  *) bluetooth_revamped_bad "--$1 must be 0 or 1, got: $2" ;;
+  esac
 }
 
 bluetooth_revamped_bad() {
@@ -188,7 +332,11 @@ bluetooth_revamped_option() {
   --interval) BLUETOOTH_REVAMPED_INTERVAL="$2" ;;
   --format) BLUETOOTH_REVAMPED_FORMAT="$2" ;;
   --separator) BLUETOOTH_REVAMPED_SEPARATOR="$2" ;;
-  *) BLUETOOTH_REVAMPED_ICON="$2" ;;
+  --icon) BLUETOOTH_REVAMPED_ICON="$2" ;;
+  --icons) BLUETOOTH_REVAMPED_ICONS="$2" ;;
+  --notify) BLUETOOTH_REVAMPED_NOTIFY="$2" ;;
+  --low) BLUETOOTH_REVAMPED_LOW="$2" ;;
+  *) BLUETOOTH_REVAMPED_POPUP_KEY="$2" ;;
   esac
 }
 
@@ -202,8 +350,8 @@ bluetooth_revamped_main() {
     1:*) set -- "$@" "${bluetooth_revamped_arg}" ;;
     0:--) bluetooth_revamped_rest=1 ;;
     0:--json) bluetooth_revamped_json=1 ;;
-    0:--theme=* | 0:--interval=* | 0:--format=* | 0:--separator=* | 0:--icon=*) bluetooth_revamped_option "${bluetooth_revamped_arg%%=*}" "${bluetooth_revamped_arg#*=}" ;;
-    0:--theme | 0:--interval | 0:--format | 0:--separator | 0:--icon)
+    0:--theme=* | 0:--interval=* | 0:--format=* | 0:--separator=* | 0:--icon=* | 0:--icons=* | 0:--notify=* | 0:--low=* | 0:--popup-key=*) bluetooth_revamped_option "${bluetooth_revamped_arg%%=*}" "${bluetooth_revamped_arg#*=}" ;;
+    0:--theme | 0:--interval | 0:--format | 0:--separator | 0:--icon | 0:--icons | 0:--notify | 0:--low | 0:--popup-key)
       bluetooth_revamped_value "${bluetooth_revamped_arg}" "${bluetooth_revamped_count}"
       bluetooth_revamped_option "${bluetooth_revamped_arg}" "$1"
       shift
@@ -214,7 +362,7 @@ bluetooth_revamped_main() {
     *) set -- "$@" "${bluetooth_revamped_arg}" ;;
     esac
   done
-  bluetooth_revamped_check_interval
+  bluetooth_revamped_check_settings
   bluetooth_revamped_run "${bluetooth_revamped_theme}" "$@"
 }
 

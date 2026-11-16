@@ -27,7 +27,6 @@
 ```console
 $ bluetooth-revamped list
 AirPods Pro 85%
-Magic Keyboard
 MX Master 3S 50%
 ```
 
@@ -44,6 +43,8 @@ MX Master 3S 50%
 | tmux | 3.2以降 | ファミリーの全メンバーが対応する最低バージョン |
 | `system_profiler` | 標準搭載 | macOSの機器一覧。IntelとApple Silicon |
 | `upower` | 任意 | Linuxの機器一覧。x86_64とarm64 |
+| `blueutil` | 任意 | macOSでの接続、切断、電源。`brew install blueutil`で入ります |
+| `bluetoothctl` | 任意 | Linuxでの接続、切断、電源、ペアリング済み機器の一覧。`bluez`パッケージに含まれます |
 | gum | 任意 | `bluetooth-revamped`のメニュー、表、色。なくてもすべてのコマンドがプレーンテキストで動きます |
 
 ### インストール
@@ -90,6 +91,10 @@ run-shell ~/.tmux/plugins/tmux-bluetooth-revamped/bluetooth-revamped.tmux
 | `@bluetooth_revamped_format` | `%s` | `#{bluetooth}`のprintf形式 |
 | `@bluetooth_revamped_separator` | `, ` | `#{bluetooth}`で機器の間に入る文字列 |
 | `@bluetooth_revamped_icon` | `BT` | `#{bluetooth_icon}`の文字列 |
+| `@bluetooth_revamped_icons` | `0` | `1`で`#{bluetooth}`の各機器の前に種類を表すNerd Fontのグリフを置きます |
+| `@bluetooth_revamped_notify` | `0` | `1`で、接続中の機器の電池残量が低い水準を下回るとデスクトップ通知を送ります |
+| `@bluetooth_revamped_low` | `20` | 電池残量が低いとみなすパーセント |
+| `@bluetooth_revamped_popup_key` | `M-h` | 機器ポップアップを開くprefixキー。`none`で割り当てません |
 
 ```tmux
 set -g @bluetooth_revamped_separator ' / '
@@ -101,6 +106,10 @@ set -g @bluetooth_revamped_format '[%s]'
 | `bluetooth-revamped status NAME` | プレースホルダーを1つ表示します。`device`、`icon`、`count`、`min`のいずれか。プレースホルダーはこれを呼びます |
 | `bluetooth-revamped list` | 機器をいま読み取り、1行に1台ずつ表示します。`--json`で1つのオブジェクトを出力します |
 | `bluetooth-revamped refresh` | ステータスラインのために機器をいま読み取ります |
+| `bluetooth-revamped connect DEVICE` | ペアリング済みの機器を名前かアドレスで指定して接続します |
+| `bluetooth-revamped disconnect DEVICE` | 機器を切断します |
+| `bluetooth-revamped power on\|off\|toggle` | Bluetoothをオンかオフにするか、切り替えます |
+| `bluetooth-revamped popup` | 機器の表を表示し、接続、切断、電源の切り替えを選べます。`prefix M-h`で開きます |
 | `bluetooth-revamped doctor` | 依存するツールごとに1行。機器の読み取り元を含みます |
 | `bluetooth-revamped version` | バージョンと、tmuxのバージョン |
 | `bluetooth-revamped help` | ヘルプページ。`man bluetooth-revamped`も同じコマンドと設定を説明します |
@@ -110,16 +119,20 @@ tmuxオプションはどれも、`--separator ' / '`のようなコマンドの
 
 ```console
 $ bluetooth-revamped list --json
-{"devices":[{"name":"AirPods Pro","battery":85},{"name":"Magic Keyboard","battery":null},{"name":"MX Master 3S","battery":50}]}
+{"devices":[{"name":"AirPods Pro","battery":85},{"name":"MX Master 3S","battery":50}]}
 ```
 
-このプラグインはキーを割り当てません。
+`prefix M-h`で機器ポップアップが開きます。`@bluetooth_revamped_popup_key`で別のキーに移せ、`none`では何も割り当てません。プラグインの読み込み前に自分で割り当てたキーはそのまま残り、`doctor`がそのことを示します。
+
+電池残量が低くなると通知は1回だけ送られ、水準を上回ったあとにまた下がったときに再び送られます。`@bluetooth_revamped_notify`を`1`にするまで通知はオフで、同じ状態はいつでも`#{bluetooth_min}`に表示されます。
 
 ## 仕組み
 
 tmuxがプラグインを読み込むと、[`bluetooth-revamped.tmux`](bluetooth-revamped.tmux)が`status-left`と`status-right`の各プレースホルダーを`bluetooth-revamped status`を呼ぶ`#()`に置き換えます。この呼び出しは`@bluetooth_revamped_device`に保存した読み取り結果をすぐに表示します。結果が間隔より古いと、バックグラウンドで読み取りを1回始めます。`@bluetooth_revamped_device_lock`のロックがあるので、同時の呼び出しが2回目を始めることはなく、次の再描画で結果が表示されます。
 
-macOSは`system_profiler SPBluetoothDataType`を読みます。AirPodsは左右のイヤホンとケースの残量を報告し、プラグインはイヤホンの低いほうを表示します。Linuxは`upower --dump`を読みます。Bluetooth機器だけを数えるので、ノートパソコンの電池は表示されません。
+読み取りのたびに、ペアリング済みのすべての機器の状態、アドレス、種類、電池残量も`@bluetooth_revamped_details`に保存します。ポップアップ、操作、アイコンはこれを読みます。
+
+macOSは`system_profiler SPBluetoothDataType`を読み、`blueutil`で操作します。Linuxは`bluetoothctl`でペアリング済み機器を一覧し、それで操作します。AirPodsは左右のイヤホンとケースの残量を報告し、プラグインはイヤホンの低いほうを表示します。Linuxは`upower --dump`を読みます。Bluetooth機器だけを数えるので、ノートパソコンの電池は表示されません。
 
 <a id="画面"></a>
 
@@ -157,6 +170,14 @@ macOSは`system_profiler SPBluetoothDataType`を読みます。AirPodsは左右�
 <tr>
 <td width="50%" valign="top"><img src="screens/error.png" alt="bluetooth-revamped: 誤ったプレースホルダー名"><br><sub>誤ったプレースホルダー名。<code>stills.tape</code>より</sub></td>
 <td width="50%" valign="top"><img src="screens/accent.png" alt="bluetooth-revamped: BLUETOOTH_REVAMPED_ACCENTによるアクセント"><br><sub><code>BLUETOOTH_REVAMPED_ACCENT</code>によるアクセント。<code>stills.tape</code>より</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/popup.png" alt="bluetooth-revamped: prefix M-hの機器ポップアップ"><br><sub><code>prefix M-h</code>の機器ポップアップ。<code>actions.tape</code>より</sub></td>
+<td width="50%" valign="top"><img src="screens/connect.png" alt="bluetooth-revamped: ポップアップからの接続"><br><sub>ポップアップからの接続。<code>actions.tape</code>より</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/icons.png" alt="bluetooth-revamped: 機器の種類ごとのグリフ"><br><sub>機器の種類ごとのグリフ。<code>actions.tape</code>より</sub></td>
+<td width="50%" valign="top"><img src="screens/power.png" alt="bluetooth-revamped: power toggleとdisconnect"><br><sub><code>power toggle</code>と<code>disconnect</code>。<code>actions.tape</code>より</sub></td>
 </tr>
 <tr>
 <td width="50%" valign="top"><img src="screens/themes.png" alt="bluetooth-revamped: 6つのテーマのヘッダー"><br><sub>6つのテーマのヘッダー。<code>themes.tape</code>より</sub></td>

@@ -51,7 +51,7 @@ complete_words() {
 
 @test "install - bash completes the commands" {
   # Arrange
-  local word=d
+  local word='do'
 
   # Act
   run complete_words bluetooth-revamped "${word}"
@@ -91,4 +91,26 @@ complete_words() {
 
   # Assert
   [[ -z "${output}" ]]
+}
+
+@test "install - bash completes the power states" {
+  # Arrange
+  local word=t
+
+  # Act
+  run complete_words bluetooth-revamped power "${word}"
+
+  # Assert
+  [[ "${output}" == "toggle" ]]
+}
+
+@test "install - bash completes 0 and 1 after a switch" {
+  # Arrange
+  local word=""
+
+  # Act
+  run complete_words bluetooth-revamped --icons "${word}"
+
+  # Assert
+  [[ "${output}" == $'0\n1' ]]
 }

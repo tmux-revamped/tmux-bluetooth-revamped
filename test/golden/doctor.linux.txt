@@ -1,6 +1,8 @@
 $ bluetooth-revamped doctor
 tmux               ok       <path>, 3.8
 upower             ok       <path>
+bluetoothctl       ok       <path>
+prefix M-h         ok       opens the device popup
 gum                ok       <path>
 notifier           warn     no osascript or notify-send, so notifications stay in the status line
 awk                ok       <path>, <flavor>

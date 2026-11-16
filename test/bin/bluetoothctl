@@ -1,0 +1,14 @@
+#!/bin/sh
+[ -z "${REVAMPED_TEST_BLUETOOTH_LOG:-}" ] || printf '%s\n' "bluetoothctl $*" >>"${REVAMPED_TEST_BLUETOOTH_LOG}"
+case "$*" in
+"devices Paired") [ -z "${REVAMPED_TEST_BLUETOOTH_PAIRED:-}" ] || cat "${REVAMPED_TEST_BLUETOOTH_PAIRED}" ;;
+"devices Connected") [ -z "${REVAMPED_TEST_BLUETOOTH_CONNECTED:-}" ] || cat "${REVAMPED_TEST_BLUETOOTH_CONNECTED}" ;;
+show)
+  if [ "${REVAMPED_TEST_BLUETOOTH_POWER:-1}" = 1 ]; then
+    printf 'Controller 00:00:00:00:00:00\n\tPowered: yes\n'
+  else
+    printf 'Controller 00:00:00:00:00:00\n\tPowered: no\n'
+  fi
+  ;;
+*) exit "${REVAMPED_TEST_BLUETOOTH_FAIL:-0}" ;;
+esac

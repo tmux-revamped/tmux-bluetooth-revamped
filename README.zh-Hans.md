@@ -27,7 +27,6 @@
 ```console
 $ bluetooth-revamped list
 AirPods Pro 85%
-Magic Keyboard
 MX Master 3S 50%
 ```
 
@@ -44,6 +43,8 @@ MX Master 3S 50%
 | tmux | 3.2 或更高 | 家族所有成员都支持的最低版本 |
 | `system_profiler` | 系统自带 | macOS 上的设备列表，Intel 和 Apple Silicon |
 | `upower` | 任意 | Linux 上的设备列表，x86_64 和 arm64 |
+| `blueutil` | 任意 | macOS 上的连接、断开和电源，来自 `brew install blueutil` |
+| `bluetoothctl` | 任意 | Linux 上的连接、断开、电源和已配对设备，来自 `bluez` 软件包 |
 | gum | 可选 | `bluetooth-revamped` 的菜单、表格和颜色；没有它时每个命令都输出纯文本 |
 
 ### 安装
@@ -90,6 +91,10 @@ run-shell ~/.tmux/plugins/tmux-bluetooth-revamped/bluetooth-revamped.tmux
 | `@bluetooth_revamped_format` | `%s` | `#{bluetooth}` 的 printf 格式 |
 | `@bluetooth_revamped_separator` | `, ` | `#{bluetooth}` 中设备之间的文字 |
 | `@bluetooth_revamped_icon` | `BT` | `#{bluetooth_icon}` 的文字 |
+| `@bluetooth_revamped_icons` | `0` | `1` 在 `#{bluetooth}` 中每个设备前放上表示其类型的 Nerd Font 字形 |
+| `@bluetooth_revamped_notify` | `0` | `1` 在已连接设备的电量低于低电量水平时发送桌面通知 |
+| `@bluetooth_revamped_low` | `20` | 低电量水平，单位为百分比 |
+| `@bluetooth_revamped_popup_key` | `M-h` | 打开设备弹窗的 prefix 按键，或 `none` |
 
 ```tmux
 set -g @bluetooth_revamped_separator ' / '
@@ -101,6 +106,10 @@ set -g @bluetooth_revamped_format '[%s]'
 | `bluetooth-revamped status NAME` | 打印一个占位符：`device`、`icon`、`count` 或 `min`。占位符调用的就是它 |
 | `bluetooth-revamped list` | 立即读取设备，每行一个；`--json` 输出一个对象 |
 | `bluetooth-revamped refresh` | 立即为状态栏读取设备 |
+| `bluetooth-revamped connect DEVICE` | 按名称或地址连接一个已配对的设备 |
+| `bluetooth-revamped disconnect DEVICE` | 断开一个设备 |
+| `bluetooth-revamped power on\|off\|toggle` | 打开或关闭蓝牙，或者切换 |
+| `bluetooth-revamped popup` | 设备表格，然后连接、断开或切换电源；`prefix M-h` 打开它 |
 | `bluetooth-revamped doctor` | 每个依赖一行，包括设备读取来源 |
 | `bluetooth-revamped version` | 版本号，然后是 tmux 的版本 |
 | `bluetooth-revamped help` | 帮助页面。`man bluetooth-revamped` 说明同样的命令和设置 |
@@ -110,16 +119,20 @@ set -g @bluetooth_revamped_format '[%s]'
 
 ```console
 $ bluetooth-revamped list --json
-{"devices":[{"name":"AirPods Pro","battery":85},{"name":"Magic Keyboard","battery":null},{"name":"MX Master 3S","battery":50}]}
+{"devices":[{"name":"AirPods Pro","battery":85},{"name":"MX Master 3S","battery":50}]}
 ```
 
-插件不绑定任何按键。
+`prefix M-h` 打开设备弹窗。`@bluetooth_revamped_popup_key` 可以把它移到别的按键，`none` 则不绑定；在插件加载之前你自己绑定的按键会保留，`doctor` 会说明这一点。
+
+电量低时只通知一次，电量回升到低电量水平以上之后再次下降才会再通知。在 `@bluetooth_revamped_notify` 设为 `1` 之前通知是关闭的，同样的状态始终显示在 `#{bluetooth_min}` 中。
 
 ## 工作原理
 
 tmux 加载插件时，[`bluetooth-revamped.tmux`](bluetooth-revamped.tmux) 把 `status-left` 和 `status-right` 中的每个占位符换成调用 `bluetooth-revamped status` 的 `#()`。这个调用立即打印保存在 `@bluetooth_revamped_device` 中的读数。读数比间隔更旧时，它还会在后台开始一次读取；`@bluetooth_revamped_device_lock` 中的锁保证并行的调用不会再开始第二次，下一次重绘就会显示结果。
 
-macOS 读取 `system_profiler SPBluetoothDataType`。AirPods 会报告每只耳机和充电盒的电量，插件显示较低的耳机电量。Linux 读取 `upower --dump`，只统计蓝牙设备，所以笔记本电脑的电池不会出现。
+每次读取还会把所有已配对设备的状态、地址、类型和电量保存在 `@bluetooth_revamped_details` 中；弹窗、操作和图标都读取它。
+
+macOS 读取 `system_profiler SPBluetoothDataType`，并通过 `blueutil` 操作。Linux 用 `bluetoothctl` 列出已配对设备，并通过它操作。AirPods 会报告每只耳机和充电盒的电量，插件显示较低的耳机电量。Linux 读取 `upower --dump`，只统计蓝牙设备，所以笔记本电脑的电池不会出现。
 
 <a id="界面"></a>
 
@@ -157,6 +170,14 @@ macOS 读取 `system_profiler SPBluetoothDataType`。AirPods 会报告每只耳�
 <tr>
 <td width="50%" valign="top"><img src="screens/error.png" alt="bluetooth-revamped：错误的占位符名称"><br><sub>错误的占位符名称，来自 <code>stills.tape</code></sub></td>
 <td width="50%" valign="top"><img src="screens/accent.png" alt="bluetooth-revamped：来自 BLUETOOTH_REVAMPED_ACCENT 的强调色"><br><sub>来自 <code>BLUETOOTH_REVAMPED_ACCENT</code> 的强调色，来自 <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/popup.png" alt="bluetooth-revamped：prefix M-h 上的设备弹窗"><br><sub><code>prefix M-h</code> 上的设备弹窗，来自 <code>actions.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/connect.png" alt="bluetooth-revamped：从弹窗连接的设备"><br><sub>从弹窗连接的设备，来自 <code>actions.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/icons.png" alt="bluetooth-revamped：每种设备类型的字形"><br><sub>每种设备类型的字形，来自 <code>actions.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/power.png" alt="bluetooth-revamped：power toggle 和 disconnect"><br><sub><code>power toggle</code> 和 <code>disconnect</code>，来自 <code>actions.tape</code></sub></td>
 </tr>
 <tr>
 <td width="50%" valign="top"><img src="screens/themes.png" alt="bluetooth-revamped：六个主题下的标题"><br><sub>六个主题下的标题，来自 <code>themes.tape</code></sub></td>

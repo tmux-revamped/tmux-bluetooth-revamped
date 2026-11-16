@@ -92,3 +92,64 @@ placeholder_command() {
   [[ "${lines[0]}" == 100755\ * ]]
   [[ "${lines[1]}" == 100755\ * ]]
 }
+
+@test "entrypoint - prefix M-h opens the device popup" {
+  # Arrange
+  local key=M-h
+
+  # Act
+  load_plugin "${ROOT}"
+
+  # Assert
+  run tmux list-keys -T prefix "${key}"
+  [[ "${output}" == *"display-popup -E"*"bin/bluetooth-revamped' popup"* ]]
+}
+
+@test "entrypoint - the popup key follows its tmux option" {
+  # Arrange
+  set_option @bluetooth_revamped_popup_key M-y
+
+  # Act
+  load_plugin "${ROOT}"
+
+  # Assert
+  run tmux list-keys -T prefix M-y
+  [[ "${output}" == *"bluetooth-revamped' popup"* ]]
+}
+
+@test "entrypoint - none binds no key" {
+  # Arrange
+  set_option @bluetooth_revamped_popup_key none
+
+  # Act
+  load_plugin "${ROOT}"
+
+  # Assert
+  run tmux list-keys -T prefix M-h
+  [[ "${output}" != *"bluetooth-revamped"* ]]
+}
+
+@test "entrypoint - a key the person bound stays theirs" {
+  # Arrange
+  tmux bind-key -T prefix M-h split-window
+
+  # Act
+  load_plugin "${ROOT}"
+
+  # Assert
+  run tmux list-keys -T prefix M-h
+  [[ "${output}" == *"split-window"* ]]
+  [[ "${output}" != *"bluetooth-revamped"* ]]
+}
+
+@test "entrypoint - loading twice keeps the popup on its key" {
+  # Arrange
+  load_plugin "${ROOT}"
+
+  # Act
+  load_plugin "${ROOT}"
+
+  # Assert
+  run tmux list-keys -T prefix M-h
+  [[ "${output}" == *"bluetooth-revamped' popup"* ]]
+}

@@ -27,7 +27,6 @@ English &nbsp;|&nbsp; [日本語](README.ja.md) &nbsp;|&nbsp; [简体中文](REA
 ```console
 $ bluetooth-revamped list
 AirPods Pro 85%
-Magic Keyboard
 MX Master 3S 50%
 ```
 
@@ -44,6 +43,8 @@ The status line reads a reading stored in a tmux option, and the device query ru
 | tmux | 3.2 or later | the family floor every member supports |
 | `system_profiler` | built in | the device list on macOS, Intel and Apple Silicon |
 | `upower` | any | the device list on Linux, x86_64 and arm64 |
+| `blueutil` | any | connect, disconnect and power on macOS, from `brew install blueutil` |
+| `bluetoothctl` | any | connect, disconnect, power and the paired devices on Linux, from the `bluez` package |
 | gum | optional | the menu, tables and colours of `bluetooth-revamped`; without it every command prints plain text |
 
 ### Install
@@ -90,6 +91,10 @@ run-shell ~/.tmux/plugins/tmux-bluetooth-revamped/bluetooth-revamped.tmux
 | `@bluetooth_revamped_format` | `%s` | printf format for `#{bluetooth}` |
 | `@bluetooth_revamped_separator` | `, ` | Text between devices in `#{bluetooth}` |
 | `@bluetooth_revamped_icon` | `BT` | Text for `#{bluetooth_icon}` |
+| `@bluetooth_revamped_icons` | `0` | `1` puts a Nerd Font glyph for each device's type before it in `#{bluetooth}` |
+| `@bluetooth_revamped_notify` | `0` | `1` sends a desktop notification when a connected device's battery drops below the low level |
+| `@bluetooth_revamped_low` | `20` | The low battery level in percent |
+| `@bluetooth_revamped_popup_key` | `M-h` | The prefix key for the device popup, or `none` |
 
 ```tmux
 set -g @bluetooth_revamped_separator ' / '
@@ -101,6 +106,10 @@ set -g @bluetooth_revamped_format '[%s]'
 | `bluetooth-revamped status NAME` | Prints one placeholder: `device`, `icon`, `count` or `min`. The placeholders call this |
 | `bluetooth-revamped list` | Reads the devices now and prints one per line; `--json` prints one object |
 | `bluetooth-revamped refresh` | Reads the devices now for the status line |
+| `bluetooth-revamped connect DEVICE` | Connects a paired device, named by its name or address |
+| `bluetooth-revamped disconnect DEVICE` | Disconnects a device |
+| `bluetooth-revamped power on\|off\|toggle` | Turns Bluetooth on or off, or toggles it |
+| `bluetooth-revamped popup` | The device table, then connect, disconnect or switch power; `prefix M-h` opens it |
 | `bluetooth-revamped doctor` | One row per dependency, the device reader included |
 | `bluetooth-revamped version` | The version, then the tmux version |
 | `bluetooth-revamped help` | The help page; `man bluetooth-revamped` documents the same commands and settings |
@@ -110,16 +119,20 @@ Every tmux option is also an option of the command, such as `--separator ' / '`,
 
 ```console
 $ bluetooth-revamped list --json
-{"devices":[{"name":"AirPods Pro","battery":85},{"name":"Magic Keyboard","battery":null},{"name":"MX Master 3S","battery":50}]}
+{"devices":[{"name":"AirPods Pro","battery":85},{"name":"MX Master 3S","battery":50}]}
 ```
 
-The plugin binds no key.
+`prefix M-h` opens the device popup. `@bluetooth_revamped_popup_key` moves it to another key, and `none` binds nothing; a key you bound before the plugin loads stays yours, and `doctor` says so.
+
+A low battery notifies once, and again only after the battery rose above the low level. Notifications are off until `@bluetooth_revamped_notify` is `1`, and the same state always shows in `#{bluetooth_min}`.
 
 ## How it works
 
 When tmux loads the plugin, [`bluetooth-revamped.tmux`](bluetooth-revamped.tmux) turns each placeholder in `status-left` and `status-right` into a `#()` call to `bluetooth-revamped status`. The call prints the reading stored in `@bluetooth_revamped_device` at once. When that reading is older than the interval, the call also starts one background reading, guarded by a lock in `@bluetooth_revamped_device_lock` so parallel calls start no second one, and the next redraw shows the result.
 
-macOS reads `system_profiler SPBluetoothDataType`. AirPods report each earbud and the case, and the plugin shows the lower earbud level. Linux reads `upower --dump`, which lists only Bluetooth devices, so the laptop battery never appears.
+Each reading also stores every paired device, with its state, address, type and battery, in `@bluetooth_revamped_details`; the popup, the actions and the icons read it.
+
+macOS reads `system_profiler SPBluetoothDataType` and acts through `blueutil`. Linux lists paired devices with `bluetoothctl` and acts through it. AirPods report each earbud and the case, and the plugin shows the lower earbud level. Linux reads `upower --dump`, which lists only Bluetooth devices, so the laptop battery never appears.
 
 <a id="screens"></a>
 
@@ -157,6 +170,14 @@ macOS reads `system_profiler SPBluetoothDataType`. AirPods report each earbud an
 <tr>
 <td width="50%" valign="top"><img src="screens/error.png" alt="bluetooth-revamped: A bad placeholder name"><br><sub>A bad placeholder name, from <code>stills.tape</code></sub></td>
 <td width="50%" valign="top"><img src="screens/accent.png" alt="bluetooth-revamped: An accent from BLUETOOTH_REVAMPED_ACCENT"><br><sub>An accent from <code>BLUETOOTH_REVAMPED_ACCENT</code>, from <code>stills.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/popup.png" alt="bluetooth-revamped: The device popup on prefix M-h"><br><sub>The device popup on <code>prefix M-h</code>, from <code>actions.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/connect.png" alt="bluetooth-revamped: A device connected from the popup"><br><sub>A device connected from the popup, from <code>actions.tape</code></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screens/icons.png" alt="bluetooth-revamped: A glyph for each device type"><br><sub>A glyph for each device type, from <code>actions.tape</code></sub></td>
+<td width="50%" valign="top"><img src="screens/power.png" alt="bluetooth-revamped: power toggle and disconnect"><br><sub><code>power toggle</code> and <code>disconnect</code>, from <code>actions.tape</code></sub></td>
 </tr>
 <tr>
 <td width="50%" valign="top"><img src="screens/themes.png" alt="bluetooth-revamped: The header in six themes"><br><sub>The header in six themes, from <code>themes.tape</code></sub></td>

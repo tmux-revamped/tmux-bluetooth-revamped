@@ -8,27 +8,31 @@ Guidance for anyone, human or agent, changing tmux-bluetooth-revamped. What it i
 
 | Path | Holds |
 |:-----|:------|
-| [`bluetooth-revamped.tmux`](bluetooth-revamped.tmux) | The entry point TPM runs: it turns each placeholder into a `bluetooth-revamped status` call |
-| [`bin/bluetooth-revamped`](bin/bluetooth-revamped) | The command: `status`, `list`, `refresh`, `doctor`, `version`, `help` and the menu. `status` and `refresh` run without loading the interface modules, so a status refresh stays cheap |
-| [`lib/bluetooth.sh`](lib/bluetooth.sh) | Reading, parsing and rendering the devices, the settings and the JSON form |
+| [`bluetooth-revamped.tmux`](bluetooth-revamped.tmux) | The entry point TPM runs: it turns each placeholder into a `bluetooth-revamped status` call and binds the popup key |
+| [`bin/bluetooth-revamped`](bin/bluetooth-revamped) | The command: `status`, `list`, `refresh`, `connect`, `disconnect`, `power`, `popup`, `doctor`, `version`, `help` and the menu. `status` and `refresh` run without loading the interface modules, so a status refresh stays cheap |
+| [`lib/bluetooth.sh`](lib/bluetooth.sh) | Reading, parsing and rendering the devices, the device records, the icons, the low battery alert, the settings and the JSON form |
+| [`lib/actions.sh`](lib/actions.sh) | Connect, disconnect and power through `blueutil` or `bluetoothctl`, reporting through `BLUETOOTH_REVAMPED_PROBLEM` and `BLUETOOTH_REVAMPED_DONE` |
 | [`lib/state.sh`](lib/state.sh) | Every global this member declares: the defaults, the cache prefix and the log namespace |
 | [`lib/core.sh`](lib/core.sh) | The version |
 | [`lib/`](lib) | Every other file is the shared library, identical in every member |
-| [`test/bin/system_profiler`](test/bin/system_profiler), [`test/bin/upower`](test/bin/upower) | The device readers every test sees, printing `REVAMPED_TEST_BLUETOOTH_DUMP` and logging each call to `REVAMPED_TEST_BLUETOOTH_LOG` |
-| [`test/bluetooth.bats`](test/bluetooth.bats), [`test/commands.bats`](test/commands.bats), [`test/entrypoint.bats`](test/entrypoint.bats) | This member's suites: the library, the commands, and the entry point on a private tmux server |
-| [`screens/`](screens) | The tapes and the recording's tmux config; `prepare.sh` puts a `system_profiler` with three demo devices first on `PATH` |
+| [`test/bin/system_profiler`](test/bin/system_profiler), [`test/bin/upower`](test/bin/upower), [`test/bin/blueutil`](test/bin/blueutil), [`test/bin/bluetoothctl`](test/bin/bluetoothctl) | The tools every test sees: the readers print `REVAMPED_TEST_BLUETOOTH_DUMP`, `bluetoothctl` prints `REVAMPED_TEST_BLUETOOTH_PAIRED` and `_CONNECTED`, the power state follows `REVAMPED_TEST_BLUETOOTH_POWER`, a failure follows `REVAMPED_TEST_BLUETOOTH_FAIL`, and each call is logged to `REVAMPED_TEST_BLUETOOTH_LOG` |
+| [`test/bluetooth.bats`](test/bluetooth.bats), [`test/actions.bats`](test/actions.bats), [`test/commands.bats`](test/commands.bats), [`test/entrypoint.bats`](test/entrypoint.bats) | This member's suites: the library, the actions, the commands, and the entry point on a private tmux server |
+| [`screens/`](screens) | The tapes and the recording's tmux config; `prepare.sh` puts a `system_profiler` and a `blueutil` first on `PATH` that read and change a table of three demo devices. VHS cannot send Alt, so a tape presses `Escape` then the letter, which tmux reads as one `M-` key within the recording's `escape-time` |
 
 ## Names
 
-- Settings are the tmux options `@bluetooth_revamped_interval`, `_format`, `_separator` and `_icon`, the options `--interval`, `--format`, `--separator` and `--icon`, and the environment variables `BLUETOOTH_REVAMPED_INTERVAL`, `_FORMAT`, `_SEPARATOR` and `_ICON`.
+- Settings are the tmux options `@bluetooth_revamped_interval`, `_format`, `_separator`, `_icon`, `_icons`, `_notify`, `_low` and `_popup_key`, the options of the same names with dashes, such as `--popup-key`, and the environment variables `BLUETOOTH_REVAMPED_INTERVAL` through `_POPUP_KEY`.
 - Placeholders are `#{bluetooth}`, `#{bluetooth_icon}`, `#{bluetooth_count}` and `#{bluetooth_min}`; `status` names them `device`, `icon`, `count` and `min`.
-- The reading lives in `@bluetooth_revamped_device`, with `_ts` and `_lock`.
+- The reading lives in `@bluetooth_revamped_device`, with `_ts` and `_lock`; every paired device's record in `@bluetooth_revamped_details`, one tab-separated line of state, address, type, battery and name; the devices already notified in `@bluetooth_revamped_notified`.
 - The version constant is `BLUETOOTH_REVAMPED_VERSION`.
 
 ## Behaviour
 
 - Each placeholder prints the stored reading at once. A reading older than the interval also starts one background reading, guarded by the lock option, so parallel calls start no second one.
-- The entry point clears every inherited `REVAMPED_` and `BLUETOOTH_REVAMPED_` variable except the test switches and the six documented settings.
+- The entry point clears every inherited `REVAMPED_` and `BLUETOOTH_REVAMPED_` variable except the test switches and the ten documented settings.
+- `prefix M-h` opens `bluetooth-revamped popup` in a `display-popup`; a key the person bound first stays theirs, and `doctor` reports it.
+- A low battery notifies once while it stays below `@bluetooth_revamped_low`, only when `@bluetooth_revamped_notify` is `1`.
+- `status` and `refresh` load no interface module, and `#{bluetooth}` reads its separator, format, icons switch and records in one `tmux display-message` call; an empty tmux option there means the default.
 - A tmux option interval that is not a number means 30, so the status line never shows an error; the same value from `--interval` or the environment is a bad value.
 
 ## Domain rules
@@ -44,7 +48,4 @@ Guidance for anyone, human or agent, changing tmux-bluetooth-revamped. What it i
 
 ## Gaps against FAMILY.md
 
-As of 2026-11-16:
-
-- The key allocation gives this member `M-h` for a detail popup, and no popup exists yet.
-- No `@bluetooth_revamped_notify` for a device's low battery yet.
+As of 2026-11-16, none.

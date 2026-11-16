@@ -15,14 +15,22 @@ _bluetooth_revamped() {
     COMPREPLY=($(compgen -W "device icon count min" -- "${cur}"))
     return
     ;;
-  --interval | --format | --separator | --icon)
+  power)
+    COMPREPLY=($(compgen -W "on off toggle" -- "${cur}"))
+    return
+    ;;
+  --icons | --notify)
+    COMPREPLY=($(compgen -W "0 1" -- "${cur}"))
+    return
+    ;;
+  --interval | --format | --separator | --icon | --low | --popup-key | connect | disconnect)
     COMPREPLY=()
     return
     ;;
   *) ;;
   esac
 
-  COMPREPLY=($(compgen -W "status list refresh doctor version help --interval --format --separator --icon --json --theme" -- "${cur}"))
+  COMPREPLY=($(compgen -W "status list refresh connect disconnect power popup doctor version help --interval --format --separator --icon --icons --notify --low --popup-key --json --theme" -- "${cur}"))
 }
 
 complete -F _bluetooth_revamped bluetooth-revamped
