@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/tmux-revamped/tmux-bluetooth-revamped/compare/v2.1.0...v2.1.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* keep a hash in the path out of the popup ([ae4289d](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/ae4289d79afb06223b89214b6d52a8b82e2a5cd3))
+
 # [2.1.0](https://github.com/tmux-revamped/tmux-bluetooth-revamped/compare/v2.0.0...v2.1.0) (2026-11-16)
 
 
