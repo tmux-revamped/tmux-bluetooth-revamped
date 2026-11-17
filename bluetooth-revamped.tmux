@@ -35,7 +35,8 @@ done
 bluetooth_revamped_key=$(tmux show-option -gqv @bluetooth_revamped_popup_key)
 [ -n "${bluetooth_revamped_key}" ] || bluetooth_revamped_key=M-h
 bluetooth_revamped_bind() {
-  tmux bind-key -T prefix "${bluetooth_revamped_key}" display-popup -E -w 80% -h 80% "'${bluetooth_revamped_quoted}' popup"
+  bluetooth_revamped_bind_tool=$(printf '%s\n' "${bluetooth_revamped_dir}/bin/bluetooth-revamped" | sed -e "s/'/'\\\\''/g" -e "s/#/'\"\$(printf '%b' '\\\\0043')\"'/g")
+  tmux bind-key -T prefix "${bluetooth_revamped_key}" display-popup -E -w 80% -h 80% "'${bluetooth_revamped_bind_tool}' popup"
 }
 
 bluetooth_revamped_binding() {

@@ -10,7 +10,30 @@ setup() {
 }
 
 teardown() {
+  [[ -z "${HOST:-}" ]] || command tmux -S "${HOST}" kill-server 2>/dev/null || :
+  [[ -z "${HOST:-}" ]] || rm -f "${HOST}"
   teardown_tmux_server
+}
+
+settled() {
+  local delay
+  for delay in 0.01 0.02 0.05 0.1 0.2 0.5 1 1 2; do
+    "$@" && return 0
+    sleep "${delay}"
+  done
+  "$@"
+}
+
+attached() {
+  local clients
+  clients=$(tmux list-clients -F x 2>/dev/null)
+  [[ -n "${clients}" ]]
+}
+
+host_shows() {
+  local screen
+  screen=$(command tmux -S "${HOST}" capture-pane -p -t host)
+  [[ "${screen}" == *"$1"* ]]
 }
 
 load_plugin() {
@@ -109,6 +132,30 @@ placeholder_command() {
   # Assert
   run key_binding "${key}"
   [[ "${output}" == *"display-popup -E"*"bin/bluetooth-revamped' popup"* ]]
+}
+
+@test "entrypoint - pressing prefix M-h shows the devices, from a checkout path with a space, a hash and a quote" {
+  # Arrange
+  local copy="${BATS_TEST_TMPDIR}/it's #1 dir" quoted
+  HOST="${TMUX_SOCKET}-host"
+  mkdir -p "${copy}" "${BATS_TEST_TMPDIR}/stubs"
+  cp -Rf "${ROOT}/bin" "${ROOT}/lib" "${ROOT}/bluetooth-revamped.tmux" "${copy}/"
+  cp -f "${ROOT}/test/bin/system_profiler" "${ROOT}/test/bin/blueutil" "${ROOT}/test/bin/uname" "${BATS_TEST_TMPDIR}/stubs/"
+  printf 'Bluetooth:\n      Connected:\n          MX Master:\n              Address: AA:BB:CC:00:00:02\n              Battery Level: 50%%\n' >"${BATS_TEST_TMPDIR}/dump"
+  quoted=$(printf '%s' "${copy}" | sed -e "s/'/'\\\\''/g" -e 's/#/##/g')
+  tmux set-environment -g PATH "${BATS_TEST_TMPDIR}/stubs:${PATH}"
+  tmux set-environment -g REVAMPED_TEST_UNAME_S Darwin
+  tmux set-environment -g REVAMPED_TEST_BLUETOOTH_DUMP "${BATS_TEST_TMPDIR}/dump"
+  tmux run-shell "'${quoted}/bluetooth-revamped.tmux'"
+  command tmux -S "${HOST}" -f /dev/null new-session -d -s host -x 120 -y 30 \
+    "env -u TMUX TERM=xterm-256color tmux -S '${TMUX_SOCKET}' attach-session -t test"
+  settled attached
+
+  # Act
+  command tmux -S "${HOST}" send-keys -t host C-b M-h
+
+  # Assert
+  settled host_shows "MX Master"
 }
 
 @test "entrypoint - the popup key follows its tmux option" {

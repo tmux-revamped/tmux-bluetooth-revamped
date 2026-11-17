@@ -30,7 +30,7 @@ Guidance for anyone, human or agent, changing tmux-bluetooth-revamped. What it i
 
 - Each placeholder prints the stored reading at once. A reading older than the interval also starts one background reading, guarded by the lock option, so parallel calls start no second one.
 - The entry point clears every inherited `REVAMPED_` and `BLUETOOTH_REVAMPED_` variable except the test switches and the ten documented settings.
-- `prefix M-h` opens `bluetooth-revamped popup` in a `display-popup`; a key the person bound first stays theirs, and `doctor` reports it.
+- `prefix M-h` opens `bluetooth-revamped popup` in a `display-popup`; a key the person bound first stays theirs, and `doctor` reports it. The popup's command writes each `#` of the checkout path as `"$(printf '%b' '\0043')"`, while the status calls double it, since tmux expands formats in a status line and not in a popup's command.
 - A low battery notifies once while it stays below `@bluetooth_revamped_low`, only when `@bluetooth_revamped_notify` is `1`.
 - `status` and `refresh` load no interface module, and `#{bluetooth}` reads its separator, format, icons switch and records in one `tmux display-message` call; an empty tmux option there means the default.
 - A tmux option interval that is not a number means 30, so the status line never shows an error; the same value from `--interval` or the environment is a bad value.
@@ -48,6 +48,4 @@ Guidance for anyone, human or agent, changing tmux-bluetooth-revamped. What it i
 
 ## Gaps against FAMILY.md
 
-As of 2026-11-16:
-
-- No test presses its keys through a real client; the suites call the commands directly, so what tmux does to a binding's own command goes untested.
+As of 2026-11-16, none.
