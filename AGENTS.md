@@ -16,7 +16,7 @@ Guidance for anyone, human or agent, changing tmux-bluetooth-revamped. What it i
 | [`lib/core.sh`](lib/core.sh) | The version |
 | [`lib/`](lib) | Every other file is the shared library, identical in every member |
 | [`test/bin/system_profiler`](test/bin/system_profiler), [`test/bin/upower`](test/bin/upower), [`test/bin/blueutil`](test/bin/blueutil), [`test/bin/bluetoothctl`](test/bin/bluetoothctl) | The tools every test sees: the readers print `REVAMPED_TEST_BLUETOOTH_DUMP`, `bluetoothctl` prints `REVAMPED_TEST_BLUETOOTH_PAIRED` and `_CONNECTED`, the power state follows `REVAMPED_TEST_BLUETOOTH_POWER`, a failure follows `REVAMPED_TEST_BLUETOOTH_FAIL`, and each call is logged to `REVAMPED_TEST_BLUETOOTH_LOG` |
-| [`test/bluetooth.bats`](test/bluetooth.bats), [`test/actions.bats`](test/actions.bats), [`test/commands.bats`](test/commands.bats), [`test/entrypoint.bats`](test/entrypoint.bats) | This member's suites: the library, the actions, the commands, and the entry point on a private tmux server |
+| [`test/bluetooth.bats`](test/bluetooth.bats), [`test/bluetooth-records.bats`](test/bluetooth-records.bats), [`test/actions.bats`](test/actions.bats), [`test/commands.bats`](test/commands.bats), [`test/commands-actions.bats`](test/commands-actions.bats), [`test/entrypoint.bats`](test/entrypoint.bats) | This member's suites: the library, the actions, the commands, and the entry point on a private tmux server |
 | [`screens/`](screens) | The tapes and the recording's tmux config; `prepare.sh` puts a `system_profiler` and a `blueutil` first on `PATH` that read and change a table of three demo devices. VHS cannot send Alt, so a tape presses `Escape` then the letter, which tmux reads as one `M-` key within the recording's `escape-time` |
 
 ## Names
