@@ -37,6 +37,7 @@ Guidance for anyone, human or agent, changing tmux-bluetooth-revamped. What it i
 
 ## Domain rules
 
+- tmux expands formats in the output of a status job, so each device name has every `#` doubled as `#{bluetooth}` prints it. The stored list, `list` and the popup keep the name as the system gives it.
 - macOS reads `system_profiler SPBluetoothDataType`; for AirPods it shows the lower earbud level, and the case level only when no earbud reports one.
 - Linux reads `upower --dump` and keeps only devices whose native path names `bluez` or whose object path holds `_dev_`, so the laptop battery never appears.
 - Any other system has no reader: the placeholders render empty and `doctor` warns.

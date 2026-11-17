@@ -158,6 +158,15 @@ bluetooth_revamped_render_read() {
   [ -z "${BLUETOOTH_REVAMPED_ICONS+1}" ] || BLUETOOTH_REVAMPED_RENDER_ICONS="${BLUETOOTH_REVAMPED_ICONS}"
 }
 
+bluetooth_revamped_doubled() {
+  bluetooth_revamped_doubled_rest="$1" bluetooth_revamped_doubled_hash='#' BLUETOOTH_REVAMPED_DOUBLED=""
+  while [ "${bluetooth_revamped_doubled_rest}" != "${bluetooth_revamped_doubled_rest#*"${bluetooth_revamped_doubled_hash}"}" ]; do
+    BLUETOOTH_REVAMPED_DOUBLED="${BLUETOOTH_REVAMPED_DOUBLED}${bluetooth_revamped_doubled_rest%%"${bluetooth_revamped_doubled_hash}"*}${bluetooth_revamped_doubled_hash}${bluetooth_revamped_doubled_hash}"
+    bluetooth_revamped_doubled_rest="${bluetooth_revamped_doubled_rest#*"${bluetooth_revamped_doubled_hash}"}"
+  done
+  BLUETOOTH_REVAMPED_DOUBLED="${BLUETOOTH_REVAMPED_DOUBLED}${bluetooth_revamped_doubled_rest}"
+}
+
 bluetooth_revamped_render_device() {
   if [ -z "$1" ]; then
     printf '\n'
@@ -170,7 +179,8 @@ bluetooth_revamped_render_device() {
   while IFS= read -r bluetooth_revamped_render_device_line; do
     [ -n "${bluetooth_revamped_render_device_line}" ] || continue
     [ -z "${bluetooth_revamped_render_device_out}" ] || bluetooth_revamped_render_device_out="${bluetooth_revamped_render_device_out}${BLUETOOTH_REVAMPED_RENDER_SEPARATOR}"
-    bluetooth_revamped_render_device_out="${bluetooth_revamped_render_device_out}${bluetooth_revamped_render_device_line}"
+    bluetooth_revamped_doubled "${bluetooth_revamped_render_device_line}"
+    bluetooth_revamped_render_device_out="${bluetooth_revamped_render_device_out}${BLUETOOTH_REVAMPED_DOUBLED}"
   done <<EOF
 ${bluetooth_revamped_render_device_list}
 EOF

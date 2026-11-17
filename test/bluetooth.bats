@@ -228,6 +228,17 @@ source "${BATS_TEST_DIRNAME:-.}/bluetooth_helpers.bash"
   [[ "${output}" == "[AirPods Pro 85% | MX Master 50%]" ]]
 }
 
+@test "bluetooth - a hash in a device name is doubled, since tmux expands a job's output, and one in the separator is left alone" {
+  # Arrange
+  option @bluetooth_revamped_separator '#[fg=red]|#[default]'
+
+  # Act
+  lib_call bluetooth bluetooth_revamped_render_device $'Desk#S Keys 80%\nPods ## 50%'
+
+  # Assert
+  [[ "${output}" == "Desk##S Keys 80%#[fg=red]|#[default]Pods #### 50%" ]]
+}
+
 @test "bluetooth - device prints an empty line with nothing connected" {
   # Arrange
   local devices=""
