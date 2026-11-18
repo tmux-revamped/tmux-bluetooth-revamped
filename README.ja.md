@@ -115,7 +115,7 @@ set -g @bluetooth_revamped_format '[%s]'
 | `bluetooth-revamped help` | ヘルプページ。`man bluetooth-revamped`も同じコマンドと設定を説明します |
 | `bluetooth-revamped` | 端末ではメニューを表示します。機器の表示、このマシンの確認、ヘルプを選べます |
 
-tmuxオプションはどれも、`--separator ' / '`のようなコマンドのオプションとしても、`BLUETOOTH_REVAMPED_SEPARATOR`のような環境変数としても指定できます。コマンドラインが環境変数に優先し、環境変数がtmuxオプションに優先します。`--theme NAME`、`BLUETOOTH_REVAMPED_THEME`、`BLUETOOTH_REVAMPED_ACCENT`、`KODOUGU_THEME`、`KODOUGU_ACCENT`、`NO_COLOR`、tmuxオプション`@revamped_theme`は、tmux-revampedのすべてのツールと同じくコマンドの見た目を決めます。
+tmuxオプションはどれも、`--separator ' / '`のようなコマンドのオプションとしても、`BLUETOOTH_REVAMPED_SEPARATOR`のような環境変数としても指定できます。コマンドラインが環境変数に優先し、環境変数がtmuxオプションに優先します。空のtmuxオプションは既定値を意味します。`--theme NAME`、`BLUETOOTH_REVAMPED_THEME`、`BLUETOOTH_REVAMPED_ACCENT`、`KODOUGU_THEME`、`KODOUGU_ACCENT`、`NO_COLOR`、tmuxオプション`@revamped_theme`は、tmux-revampedのすべてのツールと同じくコマンドの見た目を決めます。
 
 ```console
 $ bluetooth-revamped list --json
@@ -214,6 +214,8 @@ macOSは`system_profiler SPBluetoothDataType`を読み、`blueutil`で操作し�
 | `make coverage` | このMacとUbuntuのコンテナでbashcovを実行し、合算して100パーセントで判定します |
 | `make screens` | 上の画面を、本物のプラグインからtmuxの中でVHSで録画します。macOSで実行します |
 | `make install` | コマンド、manページ、補完を`PREFIX`の下に置きます |
+
+macOS では、`brew bundle` を実行すると、これらのターゲットが使うツールがすべて [`Brewfile`](Brewfile) からインストールされます。
 
 コミットはConventional Commitsの形式に従い、そのまま`main`に入ります。`main`で`ci`が成功すると、`release.yml`がsemantic-releaseを実行します。前回のタグ以降に`feat`か`fix`があればリリースを公開し、バージョン定数を更新し、変更内容を[`CHANGELOG.md`](CHANGELOG.md)に追加します。
 

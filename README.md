@@ -115,7 +115,7 @@ set -g @bluetooth_revamped_format '[%s]'
 | `bluetooth-revamped help` | The help page; `man bluetooth-revamped` documents the same commands and settings |
 | `bluetooth-revamped` | On a terminal, a menu: show the devices, check this machine, or read the help |
 
-Every tmux option is also an option of the command, such as `--separator ' / '`, and an environment variable, such as `BLUETOOTH_REVAMPED_SEPARATOR`. The command line wins over the environment, and the environment over the tmux option. `--theme NAME`, `BLUETOOTH_REVAMPED_THEME`, `BLUETOOTH_REVAMPED_ACCENT`, `KODOUGU_THEME`, `KODOUGU_ACCENT`, `NO_COLOR` and the tmux option `@revamped_theme` set the look of the command, as in every tmux-revamped tool.
+Every tmux option is also an option of the command, such as `--separator ' / '`, and an environment variable, such as `BLUETOOTH_REVAMPED_SEPARATOR`. The command line wins over the environment, and the environment over the tmux option. An empty tmux option means its default. `--theme NAME`, `BLUETOOTH_REVAMPED_THEME`, `BLUETOOTH_REVAMPED_ACCENT`, `KODOUGU_THEME`, `KODOUGU_ACCENT`, `NO_COLOR` and the tmux option `@revamped_theme` set the look of the command, as in every tmux-revamped tool.
 
 ```console
 $ bluetooth-revamped list --json
@@ -214,6 +214,8 @@ The plugin is POSIX `sh`. CI runs every suite on each row below.
 | `make coverage` | bashcov on this Mac and in the Ubuntu container, merged and gated at 100 percent |
 | `make screens` | The screens above, recorded from the real plugin inside tmux with VHS, on macOS |
 | `make install` | The command, its man page and completions under `PREFIX` |
+
+On macOS, `brew bundle` installs every tool these targets call, from the [`Brewfile`](Brewfile).
 
 Commits follow the conventional commit format and go straight to `main`. After a green `ci` run on `main`, `release.yml` runs semantic-release: every `feat` or `fix` since the last tag publishes a release, stamps the version constant and adds the notes to [`CHANGELOG.md`](CHANGELOG.md).
 

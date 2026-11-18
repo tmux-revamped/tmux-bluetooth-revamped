@@ -115,7 +115,7 @@ set -g @bluetooth_revamped_format '[%s]'
 | `bluetooth-revamped help` | 帮助页面。`man bluetooth-revamped` 说明同样的命令和设置 |
 | `bluetooth-revamped` | 在终端中显示菜单：查看设备、检查这台机器，或者查看帮助 |
 
-每个 tmux 选项也都是命令的选项，例如 `--separator ' / '`，以及一个环境变量，例如 `BLUETOOTH_REVAMPED_SEPARATOR`。命令行优先于环境变量，环境变量优先于 tmux 选项。`--theme NAME`、`BLUETOOTH_REVAMPED_THEME`、`BLUETOOTH_REVAMPED_ACCENT`、`KODOUGU_THEME`、`KODOUGU_ACCENT`、`NO_COLOR` 和 tmux 选项 `@revamped_theme` 决定命令的外观，与每个 tmux-revamped 工具相同。
+每个 tmux 选项也都是命令的选项，例如 `--separator ' / '`，以及一个环境变量，例如 `BLUETOOTH_REVAMPED_SEPARATOR`。命令行优先于环境变量，环境变量优先于 tmux 选项。空的 tmux 选项表示使用默认值。`--theme NAME`、`BLUETOOTH_REVAMPED_THEME`、`BLUETOOTH_REVAMPED_ACCENT`、`KODOUGU_THEME`、`KODOUGU_ACCENT`、`NO_COLOR` 和 tmux 选项 `@revamped_theme` 决定命令的外观，与每个 tmux-revamped 工具相同。
 
 ```console
 $ bluetooth-revamped list --json
@@ -214,6 +214,8 @@ macOS 读取 `system_profiler SPBluetoothDataType`，并通过 `blueutil` 操作
 | `make coverage` | 在这台 Mac 和 Ubuntu 容器中运行 bashcov，合并后以 100% 为门槛 |
 | `make screens` | 用 VHS 在 tmux 中从真实插件录制上面的界面，在 macOS 上运行 |
 | `make install` | 把命令、man 手册和补全安装到 `PREFIX` 下 |
+
+在 macOS 上，运行 `brew bundle` 会根据 [`Brewfile`](Brewfile) 安装这些目标用到的所有工具。
 
 提交遵循 Conventional Commits 格式，直接进入 `main`。`main` 上的 `ci` 通过后，`release.yml` 运行 semantic-release：自上一个标签以来的每个 `feat` 或 `fix` 都会发布新版本，更新版本常量，并把说明写进 [`CHANGELOG.md`](CHANGELOG.md)。
 
