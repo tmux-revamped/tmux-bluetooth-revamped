@@ -8,7 +8,7 @@ Show
 Sleep 3s
 Hide
 Ctrl+]
-Type@5ms "prefix M-h"
+Type@5ms "prefix M-h, Enter, Enter"
 Enter
 Show
 Ctrl+B
@@ -17,18 +17,8 @@ Type@1ms "h"
 Sleep 4s
 Screenshot popup.png
 Sleep 1s
-Hide
-Ctrl+]
-Type@5ms "Enter"
-Enter
-Show
 Enter
 Sleep 2s
-Hide
-Ctrl+]
-Type@5ms "Enter"
-Enter
-Show
 Enter
 Sleep 5s
 Screenshot connect.png
