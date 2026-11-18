@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.2](https://github.com/tmux-revamped/tmux-bluetooth-revamped/compare/v2.1.1...v2.1.2) (2026-11-18)
+
+
+### Bug Fixes
+
+* double a hash in a device name ([1a0e715](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/1a0e71578eff965e37c28f4ae16bac689e2e2c9a)), closes [y-#S](https://github.com/y-/issues/S) [x#y-demo](https://github.com/x/issues/y-demo) [Desk#S](https://github.com/Desk/issues/S) [Desk#S](https://github.com/Desk/issues/S)
+* stop counting some characters twice ([995d0e7](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/995d0e748119da6cf57080b9ce4ba61004b5d993))
+
 ## [2.1.1](https://github.com/tmux-revamped/tmux-bluetooth-revamped/compare/v2.1.0...v2.1.1) (2026-11-17)
 
 
