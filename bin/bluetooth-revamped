@@ -234,11 +234,24 @@ bluetooth_revamped_doctor_key() {
   esac
 }
 
+bluetooth_revamped_doctor_settings() {
+  bluetooth_revamped_render_read
+  bluetooth_revamped_doctor_settings_interval=$(bluetooth_revamped_setting interval "")
+  bluetooth_revamped_doctor_settings_low=$(bluetooth_revamped_setting low "")
+  bluetooth_revamped_doctor_settings_notify=$(bluetooth_revamped_setting notify "")
+  # shellcheck disable=SC2154
+  revamped_doctor_settings "${BLUETOOTH_REVAMPED_KINDS}" "interval	${bluetooth_revamped_doctor_settings_interval}
+low	${bluetooth_revamped_doctor_settings_low}
+notify	${bluetooth_revamped_doctor_settings_notify}
+icons	${BLUETOOTH_REVAMPED_RENDER_ICONS}"
+}
+
 bluetooth_revamped_doctor() {
   revamped_doctor_tmux
   bluetooth_revamped_doctor_source
   bluetooth_revamped_doctor_actions
   bluetooth_revamped_doctor_key
+  bluetooth_revamped_doctor_settings
   revamped_doctor_gum
   revamped_doctor_notifier
   revamped_doctor_core_tools awk sed tr date stat

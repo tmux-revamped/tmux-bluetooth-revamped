@@ -115,7 +115,7 @@ set -g @bluetooth_revamped_format '[%s]'
 | `bluetooth-revamped help` | ヘルプページ。`man bluetooth-revamped`も同じコマンドと設定を説明します |
 | `bluetooth-revamped` | 端末ではメニューを表示します。機器の表示、このマシンの確認、ヘルプを選べます |
 
-tmuxオプションはどれも、`--separator ' / '`のようなコマンドのオプションとしても、`BLUETOOTH_REVAMPED_SEPARATOR`のような環境変数としても指定できます。コマンドラインが環境変数に優先し、環境変数がtmuxオプションに優先します。空のtmuxオプションは既定値を意味します。`--theme NAME`、`BLUETOOTH_REVAMPED_THEME`、`BLUETOOTH_REVAMPED_ACCENT`、`KODOUGU_THEME`、`KODOUGU_ACCENT`、`NO_COLOR`、tmuxオプション`@revamped_theme`は、tmux-revampedのすべてのツールと同じくコマンドの見た目を決めます。
+tmuxオプションはどれも、`--separator ' / '`のようなコマンドのオプションとしても、`BLUETOOTH_REVAMPED_SEPARATOR`のような環境変数としても指定できます。コマンドラインが環境変数に優先し、環境変数がtmuxオプションに優先します。空のtmuxオプションは既定値を意味します。`doctor` は、プラグインが認識できない値を持つ設定の名前を表示します。`--theme NAME`、`BLUETOOTH_REVAMPED_THEME`、`BLUETOOTH_REVAMPED_ACCENT`、`KODOUGU_THEME`、`KODOUGU_ACCENT`、`NO_COLOR`、tmuxオプション`@revamped_theme`は、tmux-revampedのすべてのツールと同じくコマンドの見た目を決めます。
 
 ```console
 $ bluetooth-revamped list --json

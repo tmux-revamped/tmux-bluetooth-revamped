@@ -115,7 +115,7 @@ set -g @bluetooth_revamped_format '[%s]'
 | `bluetooth-revamped help` | 說明頁面。`man bluetooth-revamped` 說明同樣的指令和設定 |
 | `bluetooth-revamped` | 在終端機中顯示選單：查看裝置、檢查這部電腦，或查看說明 |
 
-每個 tmux 選項亦是指令的選項，例如 `--separator ' / '`，以及一個環境變數，例如 `BLUETOOTH_REVAMPED_SEPARATOR`。指令列優先於環境變數，環境變數優先於 tmux 選項。空的 tmux 選項表示使用預設值。`--theme NAME`、`BLUETOOTH_REVAMPED_THEME`、`BLUETOOTH_REVAMPED_ACCENT`、`KODOUGU_THEME`、`KODOUGU_ACCENT`、`NO_COLOR` 和 tmux 選項 `@revamped_theme` 決定指令的外觀，與每個 tmux-revamped 工具相同。
+每個 tmux 選項亦是指令的選項，例如 `--separator ' / '`，以及一個環境變數，例如 `BLUETOOTH_REVAMPED_SEPARATOR`。指令列優先於環境變數，環境變數優先於 tmux 選項。空的 tmux 選項表示使用預設值。`doctor` 會指出數值無法識別的設定。`--theme NAME`、`BLUETOOTH_REVAMPED_THEME`、`BLUETOOTH_REVAMPED_ACCENT`、`KODOUGU_THEME`、`KODOUGU_ACCENT`、`NO_COLOR` 和 tmux 選項 `@revamped_theme` 決定指令的外觀，與每個 tmux-revamped 工具相同。
 
 ```console
 $ bluetooth-revamped list --json

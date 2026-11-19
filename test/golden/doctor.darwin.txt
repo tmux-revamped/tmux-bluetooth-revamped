@@ -3,6 +3,7 @@ tmux               ok       <path>, 3.8
 system_profiler    ok       <path>
 blueutil           ok       <path>
 prefix M-h         ok       opens the device popup
+settings           ok       every option holds a value it knows
 gum                ok       <path>
 notifier           warn     no osascript or notify-send, so notifications stay in the status line
 awk                ok       <path>, <flavor>

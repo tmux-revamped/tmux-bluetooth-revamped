@@ -226,10 +226,10 @@ Screenshot plain-menu.png
 Sleep 1s
 Hide
 Ctrl+]
-Type@5ms "2 Enter"
+Type@5ms "3 Enter"
 Enter
 Show
-Type "2"
+Type "3"
 Sleep 400ms
 Enter
 Sleep 6s

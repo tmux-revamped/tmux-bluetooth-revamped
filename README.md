@@ -115,7 +115,7 @@ set -g @bluetooth_revamped_format '[%s]'
 | `bluetooth-revamped help` | The help page; `man bluetooth-revamped` documents the same commands and settings |
 | `bluetooth-revamped` | On a terminal, a menu: show the devices, check this machine, or read the help |
 
-Every tmux option is also an option of the command, such as `--separator ' / '`, and an environment variable, such as `BLUETOOTH_REVAMPED_SEPARATOR`. The command line wins over the environment, and the environment over the tmux option. An empty tmux option means its default. `--theme NAME`, `BLUETOOTH_REVAMPED_THEME`, `BLUETOOTH_REVAMPED_ACCENT`, `KODOUGU_THEME`, `KODOUGU_ACCENT`, `NO_COLOR` and the tmux option `@revamped_theme` set the look of the command, as in every tmux-revamped tool.
+Every tmux option is also an option of the command, such as `--separator ' / '`, and an environment variable, such as `BLUETOOTH_REVAMPED_SEPARATOR`. The command line wins over the environment, and the environment over the tmux option. An empty tmux option means its default. `doctor` names any setting that holds a value the plugin does not know. `--theme NAME`, `BLUETOOTH_REVAMPED_THEME`, `BLUETOOTH_REVAMPED_ACCENT`, `KODOUGU_THEME`, `KODOUGU_ACCENT`, `NO_COLOR` and the tmux option `@revamped_theme` set the look of the command, as in every tmux-revamped tool.
 
 ```console
 $ bluetooth-revamped list --json

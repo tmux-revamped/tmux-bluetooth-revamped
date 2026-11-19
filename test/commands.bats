@@ -354,3 +354,15 @@ source "${BATS_TEST_DIRNAME:-.}/commands_helpers.bash"
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == "bluetooth-revamped: no tmux server is running, so the reading has nowhere to go" ]]
 }
+
+@test "commands - doctor names a tmux option whose value it does not know" {
+  # Arrange
+  tmux set-option -g @bluetooth_revamped_low soon
+
+  # Act
+  tool doctor
+
+  # Assert
+  run grep '^settings' <<<"${output}"
+  [[ "${output}" == "settings           warn     unknown values: low=soon" ]]
+}

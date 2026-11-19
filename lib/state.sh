@@ -23,3 +23,7 @@ BLUETOOTH_REVAMPED_RENDER_DETAILS=""
 BLUETOOTH_REVAMPED_DOUBLED=""
 REVAMPED_CACHE_PREFIX=bluetooth_revamped
 REVAMPED_LOG_NS=bluetooth-revamped
+BLUETOOTH_REVAMPED_KINDS='interval	number
+low	number
+icons	1 0
+notify	1 0'
