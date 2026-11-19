@@ -1,5 +1,19 @@
 # Changelog
 
+# [2.2.0](https://github.com/tmux-revamped/tmux-bluetooth-revamped/compare/v2.1.2...v2.2.0) (2026-11-19)
+
+
+### Bug Fixes
+
+* fold a table wider than the terminal ([dbfb97e](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/dbfb97ecf4104098b8f25b7dbf605fd9b50af048))
+* read the grep of macOS as bsd in doctor ([aadc777](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/aadc7776186fe776d51b94761bef2e76d08a5827))
+* stop a recording that hangs ([a472fde](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/a472fde0a37152cbd7302fb37f2050a23191f330))
+
+
+### Features
+
+* name unknown setting values in doctor ([839898a](https://github.com/tmux-revamped/tmux-bluetooth-revamped/commit/839898af6d13ca7989e1bd90053b7699e56fbb38))
+
 ## [2.1.2](https://github.com/tmux-revamped/tmux-bluetooth-revamped/compare/v2.1.1...v2.1.2) (2026-11-18)
 
 
